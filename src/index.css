@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Peachy Honey';
+  src: url('./assets/fonts/PeachyHoney.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body, * {
+  font-family: 'Peachy Honey', Arial, sans-serif !important;
+}

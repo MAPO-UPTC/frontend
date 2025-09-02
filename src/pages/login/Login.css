@@ -1,0 +1,136 @@
+/* Animación de transición entre pantallas */
+.fade-enter {
+  opacity: 0;
+  transform: scale(0.98);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 400ms, transform 400ms;
+}
+.fade-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+.fade-exit-active {
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 400ms, transform 400ms;
+}
+/* Signup horizontal rows */
+.signup-row {
+  display: flex;
+  gap: 12px;
+}
+
+.signup-row .login-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-form .login-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Paleta de colores MAPO */
+:root {
+  --mapo-orange: #FA9739;
+  --mapo-orange-dark: #EF6824;
+  --mapo-blue-light: #19989F;
+  --mapo-blue-dark: #0F395F;
+  --mapo-white: #FFFFFF;
+}
+
+.login-horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 32px;
+}
+
+.login-container {
+   background-size: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* Fondo con imagen personalizada */
+  background: var(--mapo-white) url("../../assets/fondo-white.png") top left no-repeat;
+}
+
+.login-logo {
+  width: 120px; 
+  margin-bottom: 24px;
+}
+
+.login-form {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(26, 58, 93, 0.12);
+  width: 420px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-title {
+  color: var(--mapo-blue-dark);
+  font-size: 1.7rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.login-input {
+  padding: 12px;
+  border: 1px solid var(--mapo-blue-light);
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  border-color: var(--mapo-orange);
+}
+
+.login-button {
+  background: linear-gradient(90deg, var(--mapo-blue-dark), var(--mapo-orange));
+  color: #fff;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+}
+
+.login-button:hover {
+  background: linear-gradient(90deg, var(--mapo-orange), var(--mapo-blue-dark));
+}
+
+.login-error {
+  color: var(--mapo-orange);
+  text-align: center;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.login-button.google {
+  background: #fff;
+  color: #4285F4;
+  border: 1px solid #4285F4;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.login-button.google:hover {
+  background: #4285F4;
+  color: #fff;
+}
