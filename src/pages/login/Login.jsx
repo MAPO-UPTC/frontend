@@ -3,11 +3,9 @@ import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 import logo from "../../assets/logo-pets-mapo.png";
 import { Link } from "react-router-dom";
-import { auth, googleProvider } from "../../firebase";
-import { signInWithPopup } from "firebase/auth";
 
 export default function Login() {
-  const { handleLogin, handleAuthGoogle } = useAuth();
+  const { handleLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,24 +14,27 @@ export default function Login() {
     e.preventDefault();
     setError("");
     try {
-      await handleLogin(email, password);
-      window.location.href = "/dashboard";
+      console.log("Login.jsx: Iniciando login");
+      const result = await handleLogin(email, password);
+      console.log("Login.jsx: Login exitoso", result);
+      
+      // Verificar que el token se guardó antes de redirigir
+      const token = localStorage.getItem("token");
+      console.log("Login.jsx: Token en localStorage después del login:", token);
+      
+      if (token) {
+        window.location.href = "/";
+      } else {
+        console.error("Login.jsx: No se encontró token después del login");
+        setError("Error al guardar sesión");
+      }
     } catch (err) {
+      console.error("Login.jsx: Error en login:", err);
       setError("Credenciales incorrectas");
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const token = await result.user.getIdToken();
-      await handleAuthGoogle(token);
-      window.location.href = "/dashboard";
-    } catch (err) {
-      setError("Error al iniciar sesión con Google");
-    }
-  };
+
 
   return (
     <div className="login-container">
@@ -60,13 +61,9 @@ export default function Login() {
           <button type="submit" className="login-button">
             Entrar
           </button>
-          <button
-            type="button"
-            className="login-button google"
-            onClick={handleGoogleLogin}
-          >
-            Iniciar sesión con Google
-          </button>
+          
+
+          
           <div style={{ textAlign: "center", marginTop: "12px" }}>
             ¿No tienes cuenta? <Link to="/signup" style={{ color: "var(--mapo-blue-dark)", fontWeight: "bold" }}>Regístrate aquí</Link>
           </div>

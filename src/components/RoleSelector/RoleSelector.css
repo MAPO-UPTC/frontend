@@ -1,0 +1,140 @@
+/* RoleSelector.css */
+
+.role-selector {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  font-family: 'Arial', sans-serif;
+}
+
+.role-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.role-selector-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.role-selector-dropdown {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: #495057;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-selector-dropdown:focus {
+  outline: none;
+  border-color: #FA9739;
+  box-shadow: 0 0 0 2px rgba(250, 151, 57, 0.2);
+}
+
+.role-selector-dropdown:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.role-selector-loading {
+  color: #6c757d;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.active-role-indicator,
+.all-roles-indicator {
+  padding: 8px 0;
+}
+
+.role-badge {
+  display: inline-block;
+  background: #FA9739;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.role-badge.all-roles {
+  background: #19989F;
+}
+
+.role-description {
+  display: block;
+  color: #6c757d;
+  font-size: 11px;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .role-selector-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .role-selector-label {
+    white-space: normal;
+  }
+  
+  .role-selector-dropdown {
+    min-width: auto;
+  }
+}
+
+/* Estados de hover */
+.role-selector-dropdown:hover:not(:disabled) {
+  border-color: #adb5bd;
+}
+
+/* Animaciones */
+.active-role-indicator,
+.all-roles-indicator {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Variantes */
+.role-selector.compact {
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.role-selector.compact .role-selector-container {
+  margin-bottom: 8px;
+}
+
+.role-selector.compact .role-badge {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.role-selector.compact .role-description {
+  font-size: 10px;
+}

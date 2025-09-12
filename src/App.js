@@ -5,6 +5,9 @@ import { useAuth, AuthProvider } from "./context/AuthContext";
 import Login from "./pages/login/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Signup from "./pages/signup/Signup";
+import Products from "./pages/products/Products";
+import CreateProduct from "./pages/createProduct/CreateProduct";
+import PermissionsDemo from "./pages/PermissionsDemo/PermissionsDemo";
 
 import { useRef } from "react";
 
@@ -20,9 +23,12 @@ function AnimatedRoutes() {
       <CSSTransition key={location.pathname} classNames="fade" timeout={400} nodeRef={nodeRef}>
         <div ref={nodeRef}>
           <Routes location={location}>
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Products />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/create-product" element={<CreateProduct />} />
+            <Route path="/permissions-demo" element={<PermissionsDemo />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/dashboard"

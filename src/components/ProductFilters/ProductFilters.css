@@ -1,0 +1,77 @@
+/* src/components/ProductFilters/ProductFilters.css */
+/* Paleta de colores MAPO */
+:root {
+  --mapo-orange: #FA9739;
+  --mapo-orange-dark: #EF6824;
+  --mapo-blue-light: #19989F;
+  --mapo-blue-dark: #0F395F;
+  --mapo-white: #FFFFFF;
+  --mapo-gray-light: #F5F5F5;
+  --mapo-gray-medium: #E0E0E0;
+}
+
+.product-filters {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--mapo-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--mapo-gray-medium);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.search-input,
+.filter-select {
+  padding: 12px 16px;
+  border: 2px solid var(--mapo-gray-medium);
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--mapo-white);
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: var(--mapo-blue-light);
+  box-shadow: 0 0 0 3px rgba(25, 152, 159, 0.1);
+}
+
+.clear-filters-btn {
+  background: var(--mapo-orange);
+  color: var(--mapo-white);
+  border: none;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.clear-filters-btn:hover {
+  background: var(--mapo-orange-dark);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    min-width: unset;
+  }
+}
