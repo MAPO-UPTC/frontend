@@ -41,8 +41,8 @@ export const productService = {
    * @returns {Promise} Producto creado
    */
   createProduct: async (productData) => {
-    // Validar datos antes de enviar
-    const requiredFields = ['name', 'description', 'category_id'];
+    // Validar datos antes de enviar (sin categoryId por ahora)
+    const requiredFields = ['name', 'description'];
     for (const field of requiredFields) {
       if (!productData[field]) {
         throw new Error(`El campo ${field} es obligatorio`);
@@ -53,11 +53,33 @@ export const productService = {
     const cleanData = {
       name: productData.name.trim(),
       description: productData.description.trim(),
-      category_id: null/* productData.category_id */
+      category_id: null // Temporalmente enviamos null hasta tener categorías con UUID válidos
     };
+
+    console.log("🔧 Enviando category_id como null temporalmente");
+
+    // Incluir image_url si está presente
+    if (productData.image_url && productData.image_url.trim()) {
+      cleanData.image_url = productData.image_url.trim();
+    }
+
+    console.log("createProduct: FormData original:", productData);
+    console.log("createProduct: CategoryId type:", typeof productData.categoryId);
+    console.log("createProduct: Image URL:", productData.image_url);
+
     console.log("createProduct: Datos a enviar al backend:", cleanData);
-    const response = await api.post('/products', cleanData);
-    return response.data;
+    
+    try {
+      const response = await api.post('/products', cleanData);
+      console.log("✅ Producto creado exitosamente:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error al crear producto:");
+      console.error("Status:", error.response?.status);
+      console.error("Data:", error.response?.data);
+      console.error("Full error:", error);
+      throw error;
+    }
   },
 
   /**

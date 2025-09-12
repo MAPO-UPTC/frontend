@@ -22,6 +22,7 @@ export default function CreateProduct() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [imagePreviewError, setImagePreviewError] = useState(false);
 
   // Verificar permisos al cargar el componente
   useEffect(() => {
@@ -53,6 +54,11 @@ export default function CreateProduct() {
         [name]: ""
       }));
     }
+
+    // Reset image preview error when URL changes
+    if (name === 'imageUrl') {
+      setImagePreviewError(false);
+    }
   };
 
   // Validación del formulario - SIN precio ni stock
@@ -71,6 +77,24 @@ export default function CreateProduct() {
       newErrors.categoryId = "La categoría es requerida";
     }
     
+    // Validar URL de imagen si se proporciona
+    if (formData.imageUrl && formData.imageUrl.trim()) {
+      try {
+        new URL(formData.imageUrl);
+        // Verificar que sea una URL de imagen válida
+        const validImageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+        const url = formData.imageUrl.toLowerCase();
+        const hasValidExtension = validImageExtensions.some(ext => url.includes(ext));
+        const isValidImageUrl = hasValidExtension || url.includes('image') || url.includes('img') || url.includes('photo');
+        
+        if (!isValidImageUrl) {
+          newErrors.imageUrl = "Por favor ingresa una URL válida de imagen";
+        }
+      } catch (error) {
+        newErrors.imageUrl = "Por favor ingresa una URL válida";
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -85,12 +109,19 @@ export default function CreateProduct() {
 
     setLoading(true);
     try {
-      // Preparar datos del producto - SIN precio ni stock
+      // Preparar datos del producto con mapeo correcto de campos
       const productData = {
-        ...formData,
-        categoryId: parseInt(formData.categoryId),
+        name: formData.name,
+        description: formData.description,
+        categoryId: formData.categoryId, // No convertir a int, debe ser UUID string
+        image_url: formData.imageUrl || null, // Mapear imageUrl a image_url
       };
 
+      console.log('🚀 Datos del formulario antes del mapeo:', formData);
+      console.log('🚀 Enviando datos del producto:', productData);
+      console.log('🚀 Tipo de categoryId:', typeof productData.categoryId);
+      console.log('🚀 Valor de image_url:', productData.image_url);
+      
       await createProduct(productData);
       navigate("/products");
     } catch (error) {
@@ -179,16 +210,42 @@ export default function CreateProduct() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="imageUrl" className="form-label">URL de la Imagen</label>
+            <label htmlFor="imageUrl" className="form-label">URL de la Imagen (Opcional)</label>
             <input
               type="url"
               id="imageUrl"
               name="imageUrl"
               value={formData.imageUrl}
               onChange={handleInputChange}
-              className="form-input"
-              placeholder="https://example.com/imagen.jpg"
+              className={`form-input ${errors.imageUrl ? "error" : ""}`}
+              placeholder="https://ejemplo.com/imagen-producto.jpg"
             />
+            {errors.imageUrl && <span className="error-text">{errors.imageUrl}</span>}
+            <small className="form-help">
+              Ingresa una URL válida de imagen para mostrar el producto (jpg, png, gif, webp)
+            </small>
+            
+            {/* Previsualización de la imagen */}
+            {formData.imageUrl && (
+              <div className="image-preview-container">
+                <label className="form-label">Previsualización:</label>
+                {!imagePreviewError ? (
+                  <img
+                    src={formData.imageUrl}
+                    alt="Previsualización del producto"
+                    className="image-preview"
+                    onError={() => setImagePreviewError(true)}
+                    onLoad={() => setImagePreviewError(false)}
+                  />
+                ) : (
+                  <div className="image-preview-error">
+                    <div className="error-icon">⚠️</div>
+                    <div className="error-message">No se pudo cargar la imagen</div>
+                    <small>Verifica que la URL sea correcta y accesible</small>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="form-actions">

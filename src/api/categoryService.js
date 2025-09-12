@@ -11,19 +11,23 @@ export const categoryService = {
    */
   getCategories: async () => {
     try {
+      console.log('🔄 Obteniendo categorías del backend...');
       const response = await api.get('/categories');
+      console.log('✅ Categorías obtenidas del backend:', response.data);
       return response.data;
     } catch (error) {
-      console.warn('Error al obtener categorías del backend, usando categorías por defecto:', error);
+      console.warn('❌ Error al obtener categorías del backend, usando categorías por defecto:', error);
       
-      // Categorías por defecto como fallback
-      return [
-        { id: "1", name: "Alimento" },
-        { id: "2", name: "Juguetes" },
-        { id: "3", name: "Accesorios" },
-        { id: "4", name: "Higiene" },
-        { id: "5", name: "Medicina" }
+      // Categorías por defecto como fallback con UUIDs simulados
+      const fallbackCategories = [
+        { id: "550e8400-e29b-41d4-a716-446655440001", name: "Alimento" },
+        { id: "550e8400-e29b-41d4-a716-446655440002", name: "Juguetes" },
+        { id: "550e8400-e29b-41d4-a716-446655440003", name: "Accesorios" },
+        { id: "550e8400-e29b-41d4-a716-446655440004", name: "Higiene" },
+        { id: "550e8400-e29b-41d4-a716-446655440005", name: "Medicina" }
       ];
+      console.log('📋 Usando categorías por defecto:', fallbackCategories);
+      return fallbackCategories;
     }
   },
 

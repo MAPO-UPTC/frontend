@@ -57,8 +57,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleLogout = () => {
+    console.log('🔓 Iniciando logout...');
+    
+    // Limpiar datos de autenticación
     logout();
     setUser(null);
+    
+    // Disparar evento personalizado para que otros componentes puedan reaccionar
+    const logoutEvent = new CustomEvent('userLogout');
+    window.dispatchEvent(logoutEvent);
+    
+    console.log('✅ Logout completado');
   };
 
   useEffect(() => {

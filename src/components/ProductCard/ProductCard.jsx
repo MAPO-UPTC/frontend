@@ -39,9 +39,9 @@ export default function ProductCard({ product }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="product-image-container">
-        {!imageError ? (
+        {!imageError && product.image_url ? (
           <img
-            src={product.image}
+            src={product.image_url}
             alt={product.name}
             className="product-image"
             onError={handleImageError}
@@ -49,7 +49,8 @@ export default function ProductCard({ product }) {
           />
         ) : (
           <div className="product-image-placeholder">
-            <span>📦</span>
+            <div className="placeholder-icon">📦</div>
+            <div className="placeholder-text">Sin imagen</div>
           </div>
         )}
         

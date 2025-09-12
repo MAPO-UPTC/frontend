@@ -21,21 +21,28 @@ export const usePermissions = () => {
     try {
       const token = authService.getToken();
       if (!token) {
+        console.log('🚫 No hay token disponible, no se pueden cargar permisos');
         setPermissionData(null);
         setLoading(false);
         return;
       }
 
+      console.log('🔄 Cargando permisos del usuario...');
       const permissions = await authService.getPermissions();
-      console.log('Permisos cargados:', permissions);
+      console.log('✅ Permisos cargados exitosamente:', permissions);
       setPermissionData(permissions);
     } catch (err) {
-      console.error('Error al obtener permisos:', err);
+      console.error('❌ Error al obtener permisos:', err);
       
-      // Si hay error de autenticación, limpiar datos
-      if (err.response?.status === 401) {
+      // Si hay error de autenticación, limpiar datos y disparar logout
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        console.log('🔐 Error de autenticación, limpiando sesión...');
         authService.logout();
         setPermissionData(null);
+        
+        // Disparar evento de logout si no se ha disparado ya
+        const logoutEvent = new CustomEvent('userLogout');
+        window.dispatchEvent(logoutEvent);
       } else {
         setError(err.message || 'Error al cargar permisos');
       }
@@ -49,12 +56,20 @@ export const usePermissions = () => {
    */
   const hasPermission = useCallback((entity, action, requiredLevel = PermissionLevel.ALL) => {
     console.log(`🔍 Verificando permiso: ${entity}.${action} (requiere: ${requiredLevel})`);
-    console.log('📊 Datos de permisos actuales:', permissionData);
     
-    if (!permissionData?.permissions) {
-      console.log('❌ No hay datos de permisos');
+    // Si no hay token, no hay permisos
+    const token = authService.getToken();
+    if (!token) {
+      console.log('🚫 No hay token, permiso denegado');
       return false;
     }
+    
+    if (!permissionData?.permissions) {
+      console.log('❌ No hay datos de permisos cargados');
+      return false;
+    }
+    
+    console.log('📊 Datos de permisos actuales:', permissionData);
     
     try {
       const entityPerms = permissionData.permissions[entity];
@@ -160,16 +175,60 @@ export const usePermissions = () => {
   }, [permissionData]);
 
   /**
-   * Cargar permisos al montar el componente
+   * Limpiar todos los datos de permisos (útil para logout)
+   */
+  const clearPermissions = useCallback(() => {
+    console.log('🧹 Limpiando todos los datos de permisos...');
+    setPermissionData(null);
+    setError(null);
+    setLoading(false);
+  }, []);
+
+  /**
+   * Cargar permisos al montar el componente y cuando cambie el token
    */
   useEffect(() => {
     const token = authService.getToken();
     if (token) {
       loadPermissions();
     } else {
+      // Si no hay token, limpiar todos los datos de permisos
+      console.log('🧹 No hay token, limpiando permisos...');
+      setPermissionData(null);
+      setError(null);
       setLoading(false);
     }
   }, [loadPermissions]);
+
+  /**
+   * Efecto para limpiar permisos cuando se hace logout
+   * Escucha cambios en localStorage y eventos de logout
+   */
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      // Si se eliminó el token, limpiar permisos
+      if (e.key === 'token' && !e.newValue) {
+        console.log('🔓 Token eliminado por localStorage, limpiando permisos...');
+        clearPermissions();
+      }
+    };
+
+    const handleLogoutEvent = () => {
+      console.log('🔓 Evento de logout recibido, limpiando permisos...');
+      clearPermissions();
+    };
+
+    // Escuchar cambios en localStorage
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Escuchar evento personalizado de logout
+    window.addEventListener('userLogout', handleLogoutEvent);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLogout', handleLogoutEvent);
+    };
+  }, [clearPermissions]);
 
   return {
     // Datos de permisos
@@ -193,6 +252,7 @@ export const usePermissions = () => {
       hasPermission,
       switchRole,
       clearActiveRole,
+      clearPermissions,
       canCreate,
       canRead,
       canUpdate,
