@@ -1,0 +1,153 @@
+/* ===== VARIABLES CSS PARA SISTEMA RESPONSIVE ===== */
+
+:root {
+  /* === BREAKPOINTS === */
+  --mobile-small: 320px;
+  --mobile: 480px;
+  --tablet: 768px;
+  --desktop: 1024px;
+  --desktop-large: 1200px;
+
+  /* === SPACING SYSTEM === */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* === CONTAINER WIDTHS === */
+  --container-mobile: 100%;
+  --container-tablet: 95%;
+  --container-desktop: 1200px;
+
+  /* === PADDING RESPONSIVE === */
+  --padding-mobile: var(--spacing-md);
+  --padding-tablet: var(--spacing-lg);
+  --padding-desktop: var(--spacing-xl);
+
+  /* === GRID SYSTEM === */
+  --grid-gap-mobile: var(--spacing-md);
+  --grid-gap-tablet: var(--spacing-lg);
+  --grid-gap-desktop: var(--spacing-xl);
+
+  /* === FONT SIZES RESPONSIVE === */
+  --font-xs: 0.75rem;      /* 12px */
+  --font-sm: 0.875rem;     /* 14px */
+  --font-base: 1rem;       /* 16px */
+  --font-lg: 1.125rem;     /* 18px */
+  --font-xl: 1.25rem;      /* 20px */
+  --font-2xl: 1.5rem;      /* 24px */
+  --font-3xl: 2rem;        /* 32px */
+
+  /* === SHADOWS RESPONSIVE === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* === BORDER RADIUS === */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+}
+
+/* === MIXINS COMO CLASES UTILITARIAS === */
+
+/* Container responsive */
+.container {
+  width: 100%;
+  max-width: var(--container-desktop);
+  margin: 0 auto;
+  padding: 0 var(--padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--padding-desktop);
+  }
+}
+
+/* Grid responsive */
+.grid-responsive {
+  display: grid;
+  gap: var(--grid-gap-mobile);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-responsive {
+    gap: var(--grid-gap-tablet);
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    gap: var(--grid-gap-desktop);
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Flexbox utilities */
+.flex-mobile-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .flex-mobile-column {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-lg);
+  }
+}
+
+/* Hide/Show utilities */
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* Text utilities */
+.text-responsive {
+  font-size: var(--font-sm);
+}
+
+@media (min-width: 768px) {
+  .text-responsive {
+    font-size: var(--font-base);
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive {
+    font-size: var(--font-lg);
+  }
+}

@@ -12,31 +12,59 @@
 
 .product-filters {
   display: flex;
-  gap: 1rem;
-  align-items: flex-end;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--padding-mobile);
   background: var(--mapo-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--mapo-gray-medium);
+}
+
+/* En tablet y desktop: layout horizontal */
+@media (min-width: 768px) {
+  .product-filters {
+    flex-direction: row;
+    align-items: flex-end;
+    padding: var(--padding-tablet);
+    gap: var(--spacing-lg);
+  }
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  min-width: 200px;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+/* En desktop: ancho mínimo para consistencia */
+@media (min-width: 1024px) {
+  .filter-group {
+    min-width: 180px;
+    flex: none;
+  }
 }
 
 .search-input,
 .filter-select {
-  padding: 12px 16px;
+  padding: var(--spacing-md);
   border: 2px solid var(--mapo-gray-medium);
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
   transition: all 0.3s ease;
   background: var(--mapo-white);
+  width: 100%;
+}
+
+/* En móviles: inputs más grandes para mejor usabilidad */
+@media (max-width: 768px) {
+  .search-input,
+  .filter-select {
+    padding: var(--spacing-lg);
+    font-size: var(--font-lg);
+  }
 }
 
 .search-input:focus,
@@ -50,13 +78,22 @@
   background: var(--mapo-orange);
   color: var(--mapo-white);
   border: none;
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
   white-space: nowrap;
+  width: 100%;
+}
+
+/* En tablet y desktop: botón con ancho automático */
+@media (min-width: 768px) {
+  .clear-filters-btn {
+    width: auto;
+    min-width: 120px;
+  }
 }
 
 .clear-filters-btn:hover {
@@ -64,14 +101,23 @@
   transform: translateY(-1px);
 }
 
-/* Responsive */
+/* En móviles: reducir efectos hover */
 @media (max-width: 768px) {
-  .product-filters {
-    flex-direction: column;
-    align-items: stretch;
+  .clear-filters-btn:hover {
+    transform: none;
   }
-  
-  .filter-group {
-    min-width: unset;
+}
+
+/* Labels responsive */
+.filter-group label {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--mapo-blue-dark);
+  margin-bottom: var(--spacing-xs);
+}
+
+@media (min-width: 768px) {
+  .filter-group label {
+    font-size: var(--font-base);
   }
 }
