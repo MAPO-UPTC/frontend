@@ -19,7 +19,7 @@ export const productService = {
     if (filters.offset) params.append('offset', filters.offset);
     
     const queryString = params.toString();
-    const url = queryString ? `/products?${queryString}` : '/products';
+    const url = queryString ? `/products/?${queryString}` : '/products/';
     
     const response = await api.get(url);
     return response.data;
