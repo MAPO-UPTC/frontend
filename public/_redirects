@@ -1,0 +1,7 @@
+# Redirects para React Router en Netlify
+# Todas las rutas que no son archivos estáticos redirigen al index.html
+/*    /index.html   200
+
+# Configuración adicional para rutas específicas (opcional)
+/api/*  http://142.93.187.32:8000/:splat  200  
+/health http://142.93.187.32:8000/health  200

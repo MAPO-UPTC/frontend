@@ -9,7 +9,8 @@ import Products from "./pages/products/Products";
 import CreateProduct from "./pages/createProduct/CreateProduct";
 import PermissionsDemo from "./pages/PermissionsDemo/PermissionsDemo";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { testBackendConnection } from "./utils/testConnection";
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth();
@@ -46,6 +47,17 @@ function AnimatedRoutes() {
 }
 
 function App() {
+  // Probar conectividad al backend cuando se carga la app
+  useEffect(() => {
+    console.log('🚀 MAPO Frontend iniciando...');
+    console.log('🔗 Backend URL:', process.env.REACT_APP_API_BASE_URL || 'http://142.93.187.32:8000');
+    
+    // Probar conectividad en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      testBackendConnection();
+    }
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

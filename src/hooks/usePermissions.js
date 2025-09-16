@@ -21,18 +21,18 @@ export const usePermissions = () => {
     try {
       const token = authService.getToken();
       if (!token) {
-        console.log('🚫 No hay token disponible, no se pueden cargar permisos');
+        console.log('No hay token disponible, no se pueden cargar permisos');
         setPermissionData(null);
         setLoading(false);
         return;
       }
 
-      console.log('🔄 Cargando permisos del usuario...');
+      console.log('Cargando permisos del usuario...');
       const permissions = await authService.getPermissions();
-      console.log('✅ Permisos cargados exitosamente:', permissions);
+      console.log('Permisos cargados exitosamente:', permissions);
       setPermissionData(permissions);
     } catch (err) {
-      console.error('❌ Error al obtener permisos:', err);
+      console.error('Error al obtener permisos:', err);
       
       // Si hay error de autenticación, limpiar datos y disparar logout
       if (err.response?.status === 401 || err.response?.status === 403) {
@@ -55,34 +55,34 @@ export const usePermissions = () => {
    * Verificar si el usuario tiene un permiso específico
    */
   const hasPermission = useCallback((entity, action, requiredLevel = PermissionLevel.ALL) => {
-    console.log(`🔍 Verificando permiso: ${entity}.${action} (requiere: ${requiredLevel})`);
+    console.log(`Verificando permiso: ${entity}.${action} (requiere: ${requiredLevel})`);
     
     // Si no hay token, no hay permisos
     const token = authService.getToken();
     if (!token) {
-      console.log('🚫 No hay token, permiso denegado');
+      console.log('No hay token, permiso denegado');
       return false;
     }
     
     if (!permissionData?.permissions) {
-      console.log('❌ No hay datos de permisos cargados');
+      console.log('No hay datos de permisos cargados');
       return false;
     }
     
-    console.log('📊 Datos de permisos actuales:', permissionData);
+    console.log('Datos de permisos actuales:', permissionData);
     
     try {
       const entityPerms = permissionData.permissions[entity];
       if (!entityPerms) {
-        console.log(`❌ No hay permisos para entidad: ${entity}`);
+        console.log(`No hay permisos para entidad: ${entity}`);
         return false;
       }
 
       const userLevel = entityPerms[action];
-      console.log(`👤 Nivel del usuario para ${entity}.${action}: ${userLevel}`);
+      console.log(`Nivel del usuario para ${entity}.${action}: ${userLevel}`);
       
       if (!userLevel || userLevel === PermissionLevel.NONE) {
-        console.log('❌ Permiso denegado: nivel NONE o no definido');
+        console.log('Permiso denegado: nivel NONE o no definido');
         return false;
       }
 
@@ -114,15 +114,15 @@ export const usePermissions = () => {
       setError(null);
       
       const result = await authService.switchRole(role);
-      console.log('✅ Rol cambiado exitosamente:', result);
+      console.log('Rol cambiado exitosamente:', result);
       
       // Recargar permisos después del cambio
-      console.log('🔄 Recargando permisos después del cambio de rol...');
+      console.log('Recargando permisos después del cambio de rol...');
       await loadPermissions();
       
       return result;
     } catch (err) {
-      console.error('❌ Error cambiando rol:', err);
+      console.error('Error cambiando rol:', err);
       setError(err.message || 'Error cambiando rol');
       throw err;
     }
@@ -208,13 +208,13 @@ export const usePermissions = () => {
     const handleStorageChange = (e) => {
       // Si se eliminó el token, limpiar permisos
       if (e.key === 'token' && !e.newValue) {
-        console.log('🔓 Token eliminado por localStorage, limpiando permisos...');
+        console.log('Token eliminado por localStorage, limpiando permisos...');
         clearPermissions();
       }
     };
 
     const handleLogoutEvent = () => {
-      console.log('🔓 Evento de logout recibido, limpiando permisos...');
+      console.log('Evento de logout recibido, limpiando permisos...');
       clearPermissions();
     };
 

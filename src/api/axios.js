@@ -1,12 +1,16 @@
 // src/api/axios.js
 import axios from "axios";
 
+// Configuración de URL base - Producción MAPO Backend
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://142.93.187.32:8000";
+
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // si usas cookies
+  timeout: 10000, // Timeout de 10 segundos para el backend remoto
+  withCredentials: false, // Cambiar a false para backend remoto
 });
 
 // ✅ Interceptor REQUEST -> Adjunta el token automáticamente
