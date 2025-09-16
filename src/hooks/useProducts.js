@@ -21,9 +21,28 @@ export const useProducts = () => {
     
     try {
       const data = await productService.getProducts({ ...filters, ...newFilters });
-      // Validación defensiva: asegurar que data es un array
-      const productsArray = Array.isArray(data) ? data : [];
+      
+      console.log('[useProducts] API response type:', typeof data);
+      console.log('[useProducts] API response isArray:', Array.isArray(data));
+      console.log('[useProducts] API response value:', data);
+      
+      // Validación defensiva exhaustiva: asegurar que data es un array
+      let productsArray = [];
+      if (Array.isArray(data)) {
+        productsArray = data;
+      } else if (data && data.data && Array.isArray(data.data)) {
+        productsArray = data.data;
+      } else if (data && data.products && Array.isArray(data.products)) {
+        productsArray = data.products;
+      } else {
+        console.error('[useProducts] ERROR: Respuesta de API no tiene formato de array:', data);
+        productsArray = [];
+      }
+      
+      console.log('[useProducts] productsArray final:', productsArray);
+      console.log('[useProducts] productsArray isArray:', Array.isArray(productsArray));
       console.log('✅ Products loaded:', productsArray.length, 'items');
+      
       setProducts(productsArray);
     } catch (err) {
       console.warn('Error fetching products from API, using mock data:', err);
@@ -68,6 +87,8 @@ export const useProducts = () => {
         }
       ];
       
+      console.log('[useProducts] Using mock data fallback');
+      console.log('[useProducts] mockProducts isArray:', Array.isArray(mockProducts));
       setProducts(mockProducts);
     } finally {
       setLoading(false);

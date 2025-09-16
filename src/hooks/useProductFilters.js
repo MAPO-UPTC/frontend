@@ -52,19 +52,33 @@ export const useProductFilters = (products = []) => {
    * Productos filtrados usando useMemo para optimización
    */
   const filteredProducts = useMemo(() => {
-    // Validación defensiva: asegurar que products es un array
+    console.log('[useProductFilters] products type:', typeof products);
+    console.log('[useProductFilters] products isArray:', Array.isArray(products));
+    console.log('[useProductFilters] products value:', products);
+    
+    // Validación defensiva exhaustiva: asegurar que products es un array
     if (!Array.isArray(products)) {
-      console.warn('useProductFilters: products no es un array:', products);
+      console.error('[useProductFilters] ERROR: products no es un array:', products);
       return [];
     }
     
-    return products.filter(product => {
+    if (products.length === 0) {
+      console.log('[useProductFilters] products está vacío');
+      return [];
+    }
+    
+    const filtered = products.filter(product => {
       const matchesSearch = product.name?.toLowerCase().includes(filters.search.toLowerCase());
       const matchesCategory = !filters.category || product.category === filters.category;
       const matchesPrice = !filters.priceRange || checkPriceRange(product.price, filters.priceRange);
       
       return matchesSearch && matchesCategory && matchesPrice;
     });
+    
+    console.log('[useProductFilters] filteredProducts result:', filtered);
+    console.log('[useProductFilters] filteredProducts isArray:', Array.isArray(filtered));
+    
+    return filtered;
   }, [products, filters]);
 
   /**

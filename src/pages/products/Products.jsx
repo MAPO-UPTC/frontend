@@ -130,15 +130,31 @@ export default function Products() {
       />
 
       <div className="products-grid">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        ) : (
-          <div className="no-products">
-            No se encontraron productos que coincidan con los filtros.
-          </div>
-        )}
+        {(() => {
+          // Validación exhaustiva para evitar el error n.map is not a function
+          console.log('[Products] filteredProducts type:', typeof filteredProducts);
+          console.log('[Products] filteredProducts isArray:', Array.isArray(filteredProducts));
+          console.log('[Products] filteredProducts value:', filteredProducts);
+          
+          if (!Array.isArray(filteredProducts)) {
+            console.error('[Products] ERROR: filteredProducts no es un array:', filteredProducts);
+            return (
+              <div className="error">
+                Error: Los datos de productos no tienen el formato correcto.
+              </div>
+            );
+          }
+          
+          return filteredProducts.length > 0 ? (
+            filteredProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <div className="no-products">
+              No se encontraron productos que coincidan con los filtros.
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
