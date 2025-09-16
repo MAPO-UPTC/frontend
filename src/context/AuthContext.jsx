@@ -101,7 +101,21 @@ export const AuthProvider = ({ children }) => {
       }
     };
     
+    // Escuchar eventos de token expirado
+    const handleTokenExpired = () => {
+      console.log('🔄 Token expirado detectado, limpiando estado...');
+      setUser(null);
+      setLoading(false);
+    };
+    
+    window.addEventListener('tokenExpired', handleTokenExpired);
+    
     initAuth();
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('tokenExpired', handleTokenExpired);
+    };
   }, []);
 
   return (

@@ -11,6 +11,9 @@ import PermissionsDemo from "./pages/PermissionsDemo/PermissionsDemo";
 
 import { useRef, useEffect } from "react";
 import { testBackendConnection } from "./utils/testConnection";
+import { debugApi } from "./utils/debugApi";
+import "./utils/testSimple";
+import "./utils/authDebug";
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth();
@@ -55,6 +58,14 @@ function App() {
     // Probar conectividad en desarrollo
     if (process.env.NODE_ENV === 'development') {
       testBackendConnection();
+      
+      // Hacer disponible la función de debug
+      setTimeout(() => {
+        console.log('🔧 Función de debug disponible: debugMAPO.testEndpoints()');
+        console.log('🧪 Test simple disponible: window.mapoTest.runAll()');
+        console.log('🔐 Auth debug disponible: window.authDebug.checkLocalStorage()');
+        window.debugMAPO = debugApi;
+      }, 2000);
     }
   }, []);
 
