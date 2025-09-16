@@ -27,7 +27,8 @@ function AnimatedRoutes() {
       <CSSTransition key={location.pathname} classNames="fade" timeout={400} nodeRef={nodeRef}>
         <div ref={nodeRef}>
           <Routes location={location}>
-            <Route path="/" element={<Products />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<Products />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/products" element={<Products />} />
