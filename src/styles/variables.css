@@ -28,7 +28,7 @@
   --padding-desktop: var(--spacing-xl);
 
   /* === GRID SYSTEM === */
-  --grid-gap-mobile: var(--spacing-md);
+  --grid-gap-mobile: var(--spacing-sm);    /* Más compacto para 2 columnas móvil */
   --grid-gap-tablet: var(--spacing-lg);
   --grid-gap-desktop: var(--spacing-xl);
 

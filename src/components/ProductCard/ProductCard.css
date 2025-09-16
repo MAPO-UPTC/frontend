@@ -39,7 +39,7 @@
 .product-image-container {
   position: relative;
   width: 100%;
-  height: 180px; /* Más compacto para móviles */
+  height: 160px; /* Más compacto para 2 columnas móvil */
   overflow: hidden;
   background: var(--mapo-gray-light);
 }
@@ -47,7 +47,7 @@
 /* Ajustar altura de imagen en diferentes pantallas */
 @media (min-width: 480px) {
   .product-image-container {
-    height: 200px;
+    height: 180px; /* Ligeramente más grande en móviles grandes */
   }
 }
 

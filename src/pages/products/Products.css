@@ -165,14 +165,15 @@
   gap: var(--grid-gap-mobile);
   margin-top: var(--spacing-xl);
   
-  /* Mobile: 1 columna */
-  grid-template-columns: 1fr;
+  /* Mobile: 2 columnas para mejor aprovechamiento del espacio */
+  grid-template-columns: repeat(2, 1fr);
 }
 
-/* Mobile grande: 2 columnas */
+/* Mobile grande: mantener 2 columnas */
 @media (min-width: 480px) {
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: calc(var(--grid-gap-mobile) * 1.2); /* Ligeramente más espacio */
   }
 }
 
