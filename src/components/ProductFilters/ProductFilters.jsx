@@ -31,11 +31,13 @@ export default function ProductFilters({
           onChange={(e) => onFilterChange("category", e.target.value)}
         >
           <option value="">Todas las categorías</option>
-          {categories.map(category => (
+          {Array.isArray(categories) ? categories.map(category => (
             <option key={category.id} value={category.name}>
               {category.name}
             </option>
-          ))}
+          )) : (
+            <option value="" disabled>Error cargando categorías</option>
+          )}
         </select>
       </div>
 

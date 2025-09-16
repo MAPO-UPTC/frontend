@@ -200,11 +200,13 @@ export default function CreateProduct() {
               className={`form-select ${errors.categoryId ? "error" : ""}`}
             >
               <option value="">Seleccionar categoría</option>
-              {categories.map(category => (
+              {Array.isArray(categories) ? categories.map(category => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                 </option>
-              ))}
+              )) : (
+                <option value="" disabled>Error cargando categorías</option>
+              )}
             </select>
             {errors.categoryId && <span className="error-text">{errors.categoryId}</span>}
           </div>

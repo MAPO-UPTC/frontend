@@ -54,11 +54,13 @@ const RoleSelector = ({
           <option value="">
             Todos los roles (permisos máximos)
           </option>
-          {availableRoles.map(role => (
+          {Array.isArray(availableRoles) ? availableRoles.map(role => (
             <option key={role} value={role}>
               {getRoleDisplayName(role)}
             </option>
-          ))}
+          )) : (
+            <option value="" disabled>Error cargando roles</option>
+          )}
         </select>
 
         {loading && (
@@ -85,7 +87,7 @@ const RoleSelector = ({
             Usando todos los roles disponibles
           </span>
           <small className="role-description">
-            Tienes permisos combinados de: {availableRoles.map(getRoleDisplayName).join(', ')}
+            Tienes permisos combinados de: {Array.isArray(availableRoles) ? availableRoles.map(getRoleDisplayName).join(', ') : 'Error cargando roles'}
           </small>
         </div>
       )}
