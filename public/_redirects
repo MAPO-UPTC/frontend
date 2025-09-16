@@ -1,7 +1,13 @@
-# Redirects para React Router en Netlify
-# Todas las rutas que no son archivos estáticos redirigen al index.html
-/*    /index.html   200
+# Netlify proxy para MAPO Backend - Solucionar Mixed Content
+# Redirigir todas las peticiones de API al backend HTTP
 
-# Configuración adicional para rutas específicas (opcional)
-/api/*  http://142.93.187.32:8000/:splat  200  
-/health http://142.93.187.32:8000/health  200
+# API endpoints específicos
+/users/*  http://142.93.187.32:8000/users/:splat  200
+/products/*  http://142.93.187.32:8000/products/:splat  200
+/health  http://142.93.187.32:8000/health  200
+
+# Fallback para cualquier otra ruta de API
+/api/*  http://142.93.187.32:8000/:splat  200
+
+# React Router fallback - DEBE SER LA ÚLTIMA REGLA
+/*    /index.html   200

@@ -1,0 +1,38 @@
+[build]
+  publish = "build"
+  command = "npm run build"
+
+[build.environment]
+  REACT_APP_API_BASE_URL = ""
+  REACT_APP_ENVIRONMENT = "production"
+  GENERATE_SOURCEMAP = "false"
+  CI = "false"
+
+[[redirects]]
+  from = "/users/*"
+  to = "http://142.93.187.32:8000/users/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/products/*"
+  to = "http://142.93.187.32:8000/products/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/health"
+  to = "http://142.93.187.32:8000/health"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://142.93.187.32:8000/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

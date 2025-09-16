@@ -2,25 +2,28 @@ import api from "./axios";
 
 // Login con email y password
 export const login = async (email, password) => {
-  console.log("authService.login llamado con:", email);
+  const loginData = { email, password };
+  console.log("🚀 login: Datos que se envían al backend:", loginData);
+  
   try {
-    const { data } = await api.post("/users/login", { email, password });
-    console.log("Respuesta del backend:", data);
+    const { data } = await api.post("/users/login", loginData);
+    console.log("✅ login: Respuesta del backend:", data);
     
-    // El backend devuelve 'idToken' y información completa del usuario con permisos
-    const { idToken, user } = data;
+    // El backend puede devolver 'idToken' o 'token' - ser flexible
+    const token = data.idToken || data.token;
+    const { user } = data;
     
-    if (idToken) {
-      localStorage.setItem("token", idToken);
-      console.log("Token guardado en localStorage:", idToken);
+    if (token) {
+      localStorage.setItem("token", token);
+      console.log("✅ login: Token guardado en localStorage:", token);
       
       // Guardar información del usuario
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
-        console.log("Usuario guardado:", user);
+        console.log("✅ login: Usuario guardado:", user);
       }
     } else {
-      console.error("No se recibió token del backend. Respuesta completa:", data);
+      console.error("❌ login: No se recibió token del backend. Respuesta completa:", data);
     }
     
     return data;
@@ -36,11 +39,12 @@ export const authGoogle = async (token) => {
   try {
     const response = await api.post("/users/auth/google", { token });
     
-    // El backend puede devolver 'idToken' o 'token'
-    const { idToken, user } = response.data;
-    if (idToken) {
-      localStorage.setItem("token", idToken);
-      console.log("Token de Google guardado:", idToken);
+    // El backend puede devolver 'idToken' o 'token' - ser flexible
+    const authToken = response.data.idToken || response.data.token;
+    const { user } = response.data;
+    if (authToken) {
+      localStorage.setItem("token", authToken);
+      console.log("Token de Google guardado:", authToken);
       
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
@@ -56,13 +60,17 @@ export const authGoogle = async (token) => {
 
 // Registro de usuario
 export const signup = async (userData) => {
+  console.log("🚀 signup: Datos que se envían al backend:", userData);
+  
   try {
     const { data } = await api.post("/users/signup", userData);
-    console.log("Respuesta del signup:", data);
+    console.log("✅ signup: Respuesta del backend:", data);
     
     return data;
   } catch (error) {
-    console.error("Error en signup:", error);
+    console.error("❌ signup: Error completo:", error);
+    console.error("❌ signup: Error response:", error.response?.data);
+    console.error("❌ signup: Error status:", error.response?.status);
     throw error;
   }
 };
