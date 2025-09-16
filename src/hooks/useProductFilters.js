@@ -52,6 +52,12 @@ export const useProductFilters = (products = []) => {
    * Productos filtrados usando useMemo para optimización
    */
   const filteredProducts = useMemo(() => {
+    // Validación defensiva: asegurar que products es un array
+    if (!Array.isArray(products)) {
+      console.warn('useProductFilters: products no es un array:', products);
+      return [];
+    }
+    
     return products.filter(product => {
       const matchesSearch = product.name?.toLowerCase().includes(filters.search.toLowerCase());
       const matchesCategory = !filters.category || product.category === filters.category;

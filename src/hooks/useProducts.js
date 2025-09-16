@@ -21,7 +21,10 @@ export const useProducts = () => {
     
     try {
       const data = await productService.getProducts({ ...filters, ...newFilters });
-      setProducts(data);
+      // Validación defensiva: asegurar que data es un array
+      const productsArray = Array.isArray(data) ? data : [];
+      console.log('✅ Products loaded:', productsArray.length, 'items');
+      setProducts(productsArray);
     } catch (err) {
       console.warn('Error fetching products from API, using mock data:', err);
       

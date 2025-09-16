@@ -19,9 +19,13 @@ export const productService = {
     if (filters.offset) params.append('offset', filters.offset);
     
     const queryString = params.toString();
-    const url = queryString ? `/products/?${queryString}` : '/products/';
+    const url = queryString ? `/products?${queryString}` : '/products';
     
+    console.log('🔍 Fetching products from:', url);
     const response = await api.get(url);
+    console.log('📦 Products API response:', response.data);
+    console.log('📦 Response type:', typeof response.data, 'isArray:', Array.isArray(response.data));
+    
     return response.data;
   },
 
