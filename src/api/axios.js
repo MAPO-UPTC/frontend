@@ -8,8 +8,8 @@ const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_BASE_URL || "http://142.93.187.32:8000";
   }
   
-  // En producción (Netlify): usar proxy relativo
-  return "";
+  // En producción (Netlify): usar proxy relativo con prefijo /api/
+  return "/api";
 };
 
 const API_BASE_URL = getApiBaseUrl();
