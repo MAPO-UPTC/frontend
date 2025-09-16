@@ -26,11 +26,7 @@
   status = 200
   force = true
 
-[[redirects]]
-  from = "/api/*"
-  to = "http://142.93.187.32:8000/:splat"
-  status = 200
-  force = true
+# Eliminamos el proxy /api/* porque no se usa
 
 [[redirects]]
   from = "/*"

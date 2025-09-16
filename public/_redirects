@@ -1,13 +1,10 @@
-# Netlify proxy para MAPO Backend - Solucionar Mixed Content
-# Redirigir todas las peticiones de API al backend HTTP
+# Netlify proxy para MAPO Backend - Rutas exactas según documentación
+# Redirigir solo las rutas de API del backend
 
-# API endpoints específicos
+# Backend endpoints exactos (SIN prefijo /api/)
 /users/*  http://142.93.187.32:8000/users/:splat  200
 /products/*  http://142.93.187.32:8000/products/:splat  200
 /health  http://142.93.187.32:8000/health  200
-
-# Fallback para cualquier otra ruta de API
-/api/*  http://142.93.187.32:8000/:splat  200
 
 # React Router fallback - DEBE SER LA ÚLTIMA REGLA
 /*    /index.html   200
