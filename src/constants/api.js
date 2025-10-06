@@ -28,6 +28,16 @@ export const API_ENDPOINTS = {
     CREATE: '/categories',
     UPDATE: (id) => `/categories/${id}`,
     DELETE: (id) => `/categories/${id}`
+  },
+
+  // Person endpoints
+  PERSONS: {
+    BASE: '/persons',
+    BY_ID: (id) => `/persons/${id}`,
+    CREATE: '/persons',
+    UPDATE: (id) => `/persons/${id}`,
+    DELETE: (id) => `/persons/${id}`,
+    SEARCH: '/persons/search'
   }
 };
 

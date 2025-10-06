@@ -34,6 +34,13 @@ export interface PersonAPIResponse {
   last_name: string;
   document_type?: string;
   document_number?: string;
+  full_name?: string;
+}
+
+// Interfaz extendida que combina ambos formatos para compatibilidad
+export interface PersonComplete extends Person {
+  name?: string;
+  full_name?: string;
 }
 
 export interface Role {

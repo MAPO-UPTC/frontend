@@ -2,24 +2,24 @@ import React, { useState } from 'react';
 import { CustomerSelector, ProductSearch, SalesCart } from '../../components';
 import { useSales } from '../../hooks/useSales';
 import { useMAPOStore } from '../../store';
-import { Customer, ProductPresentation } from '../../types';
+import { PersonAPIResponse, ProductPresentation } from '../../types';
 import './SalesPage.css';
 
 export const SalesPage: React.FC = () => {
   const { cart, addProductToCart, processSale, getCartSummary } = useSales();
   const { setCustomer } = useMAPOStore();
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<PersonAPIResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCustomerSelect = (customer: Customer) => {
+  const handleCustomerSelect = (customer: PersonAPIResponse) => {
     setSelectedCustomer(customer);
-    // Convert Customer to Person for cart compatibility
+    // Convert PersonAPIResponse to Person for cart compatibility
     const person = {
       id: customer.id,
-      first_name: customer.name.split(' ')[0] || '',
-      last_name: customer.name.split(' ').slice(1).join(' ') || '',
-      phone: customer.phone,
-      email: customer.email,
+      first_name: customer.name || '',
+      last_name: customer.last_name || '',
+      phone: '', // No disponible en PersonAPIResponse
+      email: '', // No disponible en PersonAPIResponse
       document_type: customer.document_type,
       document_number: customer.document_number,
     };
@@ -31,7 +31,7 @@ export const SalesPage: React.FC = () => {
       presentation: presentation.presentation_name,
       quantity,
       price: presentation.price,
-      selectedCustomer: selectedCustomer?.name
+      selectedCustomer: selectedCustomer?.name || selectedCustomer?.full_name || 'Sin nombre'
     });
 
     if (!selectedCustomer) {
@@ -95,7 +95,6 @@ export const SalesPage: React.FC = () => {
           <CustomerSelector
             selectedCustomer={selectedCustomer}
             onCustomerSelect={handleCustomerSelect}
-            onNewCustomer={() => {}}
           />
 
           <ProductSearch
@@ -108,7 +107,16 @@ export const SalesPage: React.FC = () => {
           <SalesCart
             items={cart.items}
             total={cart.total}
-            customer={selectedCustomer}
+            customer={selectedCustomer ? {
+              id: selectedCustomer.id,
+              name: selectedCustomer.full_name || `${selectedCustomer.name} ${selectedCustomer.last_name}`,
+              email: '', // No disponible en PersonAPIResponse
+              phone: '', // No disponible en PersonAPIResponse  
+              document_type: selectedCustomer.document_type,
+              document_number: selectedCustomer.document_number,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            } : null}
             onProcessSale={handleProcessSale}
             isProcessing={isProcessing}
             canProcess={summary.canProcess}

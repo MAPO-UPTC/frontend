@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { apiClient } from '../api/client';
+import { personService } from '../api/personService';
 import {
   AppState,
   Person,
+  PersonAPIResponse,
   Customer,
   ProductPresentation,
   Sale,
@@ -28,8 +30,8 @@ interface MAPOStore extends AppState {
   setCustomer: (customer: Person) => void;
   
   // ======= CUSTOMER ACTIONS =======
-  loadPersons: () => Promise<Person[]>;
-  searchCustomers: (query: string) => Promise<Customer[]>;
+  loadPersons: () => Promise<PersonAPIResponse[]>;
+  searchCustomers: (query: string) => Promise<PersonAPIResponse[]>;
   createCustomer: (customerData: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => Promise<Customer>;
   
   // ======= SALES ACTIONS =======
@@ -243,16 +245,31 @@ export const useMAPOStore = create<MAPOStore>()(
       },
 
       // ======= CUSTOMER ACTIONS =======
-      loadPersons: async () => {
+      loadPersons: async (): Promise<PersonAPIResponse[]> => {
         try {
-          return await apiClient.getPersons();
+          console.log('🔄 Store - Cargando personas desde API...');
+          const persons = await personService.getAllPersons();
+          console.log('✅ Store - Personas cargadas:', persons.length);
+          return persons as PersonAPIResponse[];
         } catch (error: any) {
-          return [];
+          console.error('❌ Store - Error al cargar personas:', error);
+          // En caso de error, devolver datos mock
+          const mockPersons = personService.getMockPersons();
+          console.log('⚠️ Store - Usando datos mock:', mockPersons.length);
+          return mockPersons as PersonAPIResponse[];
         }
       },
 
-      searchCustomers: async (query: string) => {
-        return [];
+      searchCustomers: async (query: string): Promise<PersonAPIResponse[]> => {
+        try {
+          console.log('🔍 Store - Buscando personas:', query);
+          const results = await personService.searchPersons(query);
+          console.log('✅ Store - Resultados de búsqueda:', results.length);
+          return results as PersonAPIResponse[];
+        } catch (error: any) {
+          console.error('❌ Store - Error en búsqueda:', error);
+          return [];
+        }
       },
 
       createCustomer: async (customerData) => {
