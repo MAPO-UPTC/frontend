@@ -1,0 +1,119 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.btn-small {
+  padding: 8px 12px;
+  font-size: 12px;
+  min-height: 32px;
+}
+
+.btn-medium {
+  padding: 10px 16px;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+.btn-large {
+  padding: 12px 24px;
+  font-size: 16px;
+  min-height: 48px;
+}
+
+/* Variants */
+.btn-primary {
+  background-color: var(--mapo-blue-primary, #0066cc);
+  color: white;
+  border-color: var(--mapo-blue-primary, #0066cc);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--mapo-blue-dark, #0052a3);
+  border-color: var(--mapo-blue-dark, #0052a3);
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  border-color: #6b7280;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+  border-color: #4b5563;
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #059669;
+  border-color: #059669;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--mapo-blue-primary, #0066cc);
+  border-color: var(--mapo-blue-primary, #0066cc);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--mapo-blue-primary, #0066cc);
+  color: white;
+}
+
+/* Loading state */
+.btn-loading {
+  pointer-events: none;
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.btn-content-loading {
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

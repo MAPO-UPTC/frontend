@@ -33,6 +33,19 @@ export default function Products() {
     actions: { updateFilter, clearAllFilters }
   } = useProductFilters(products);
 
+  // Función para manejar agregar al carrito
+  const handleAddToCart = (cartItem) => {
+    console.log('Producto agregado al carrito desde Products:', cartItem);
+    // Aquí podrías integrar con un estado global de carrito
+    // o redirigir a la página de ventas
+    // Por ahora solo mostramos un mensaje
+    alert(`✅ ${cartItem.presentation.presentation_name} agregado al carrito\nCantidad: ${cartItem.quantity}\nTotal: ${new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0
+    }).format(cartItem.line_total)}`);
+  };
+
   if (loading) {
     return (
       <div className="products-container">
@@ -147,7 +160,11 @@ export default function Products() {
           
           return filteredProducts.length > 0 ? (
             filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onAddToCart={handleAddToCart}
+              />
             ))
           ) : (
             <div className="no-products">

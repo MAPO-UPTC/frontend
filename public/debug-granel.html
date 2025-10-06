@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Productos a Granel</title>
+</head>
+<body>
+    <h1>Debug: Verificar Productos a Granel</h1>
+    <div id="output"></div>
+    
+    <script>
+        // Simular los datos del store
+        const products = [
+            {
+                id: 'e63da26f-88df-4e6b-a2c8-f08dbc402e90',
+                name: 'Chunky Adulto',
+                presentations: [
+                    {
+                        id: 'a83e3b1a-1038-4ec6-aea9-309592e1e41c',
+                        presentation_name: 'Bulto 25kg',
+                        stock_available: 45,
+                        bulk_stock_available: 22,
+                        total_stock: 67,
+                        price: 95000,
+                        unit: 'kg'
+                    },
+                    {
+                        id: '524dae29-003d-40bc-9fc9-2a7f982fd46c',
+                        presentation_name: 'Granel por kilogramo',
+                        stock_available: 0,
+                        bulk_stock_available: 50,
+                        total_stock: 50,
+                        price: 3800,
+                        unit: 'kg'
+                    }
+                ]
+            },
+            {
+                id: '4af265ba-5a7d-49c2-a6be-5677a9250c1e',
+                name: 'Nutrecan Adulto RM',
+                presentations: [
+                    {
+                        id: '68e24bc5-194d-4c76-949e-d2fde4846825',
+                        presentation_name: 'Bulto 25kg',
+                        stock_available: 49,
+                        bulk_stock_available: 0,
+                        total_stock: 49,
+                        price: 247000,
+                        unit: 'kg'
+                    },
+                    {
+                        id: '2f93b1e1-33b0-4648-8fd0-3005df3c4e63',
+                        presentation_name: 'Granel por kilogramo',
+                        stock_available: 0,
+                        bulk_stock_available: 0,
+                        total_stock: 0,
+                        price: 11000,
+                        unit: 'kg'
+                    }
+                ]
+            }
+        ];
+
+        // Funciones helper (copiadas del componente)
+        const isBulkPresentation = (presentation) => {
+            const nameIndicatesBulk = presentation.presentation_name.toLowerCase().includes('granel');
+            const hasBulkStock = presentation.bulk_stock_available !== undefined && presentation.bulk_stock_available !== null;
+            return nameIndicatesBulk || hasBulkStock;
+        };
+
+        const getAvailableStock = (presentation) => {
+            const isBulk = isBulkPresentation(presentation);
+            
+            if (isBulk && presentation.bulk_stock_available > 0) {
+                return `${presentation.bulk_stock_available} ${presentation.unit}`;
+            }
+            if (!isBulk && presentation.stock_available > 0) {
+                return `${presentation.stock_available} unidades`;
+            }
+            if (presentation.stock_available > 0) {
+                return `${presentation.stock_available} unidades`;
+            }
+            if (presentation.bulk_stock_available > 0) {
+                return `${presentation.bulk_stock_available} ${presentation.unit}`;
+            }
+            return '0 disponibles';
+        };
+
+        const hasStock = (presentation) => {
+            return (presentation.stock_available || 0) > 0 || (presentation.bulk_stock_available || 0) > 0;
+        };
+
+        // Procesar y mostrar resultados
+        const allPresentations = products.flatMap(product => 
+            product.presentations?.map(presentation => ({
+                ...presentation,
+                product: product
+            })) || []
+        );
+
+        let output = '<h2>Análisis de Presentaciones:</h2>';
+        
+        allPresentations.forEach(presentation => {
+            const availableStock = getAvailableStock(presentation);
+            const isInStock = hasStock(presentation);
+            const isBulk = isBulkPresentation(presentation);
+            
+            output += `
+                <div style="border: 1px solid #ccc; margin: 10px; padding: 10px; ${isInStock ? 'background: #e8f5e8' : 'background: #f5e8e8'}">
+                    <h3>${presentation.product.name} - ${presentation.presentation_name}</h3>
+                    <p><strong>Stock Regular:</strong> ${presentation.stock_available}</p>
+                    <p><strong>Stock a Granel:</strong> ${presentation.bulk_stock_available}</p>
+                    <p><strong>Es producto a granel:</strong> ${isBulk ? 'SÍ' : 'NO'}</p>
+                    <p><strong>Tiene stock:</strong> ${isInStock ? 'SÍ' : 'NO'}</p>
+                    <p><strong>Stock mostrado:</strong> ${availableStock}</p>
+                    <p><strong>Estado:</strong> ${isInStock ? '✅ DISPONIBLE' : '❌ AGOTADO'}</p>
+                </div>
+            `;
+        });
+
+        document.getElementById('output').innerHTML = output;
+    </script>
+</body>
+</html>

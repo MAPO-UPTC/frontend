@@ -17,7 +17,6 @@ export default function PermissionsDemo() {
     actions: { 
       switchRole, 
       clearActiveRole, 
-      hasPermission, 
       canCreate, 
       canRead, 
       canUpdate, 

@@ -19,10 +19,11 @@ export const AuthProvider = ({ children }) => {
       const userData = data.user || { email };
       setUser(userData);
       
-      return data;
+      console.log("Login exitoso, usuario establecido:", userData);
+      return true; // Retornar true para indicar éxito
     } catch (error) {
       console.error("Error en handleLogin:", error);
-      throw error;
+      return false; // Retornar false para indicar error
     } finally {
       setLoading(false);
     }

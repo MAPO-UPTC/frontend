@@ -1,0 +1,10 @@
+.reports-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8faff 0%, #f1f5ff 100%);
+}
+
+@media (max-width: 768px) {
+  .reports-page {
+    padding: 0;
+  }
+}

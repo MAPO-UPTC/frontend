@@ -1,0 +1,103 @@
+.sales-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8faff 0%, #f1f5ff 100%);
+  padding: 2rem;
+}
+
+.sales-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sales-header h1 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.sales-header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.sales-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.sales-left {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sales-right {
+  /* El SalesCart maneja sus propios estilos */
+  position: relative;
+}
+
+.demo-controls {
+  text-align: center;
+}
+
+.demo-controls h3 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.demo-button {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-button:hover {
+  background: var(--primary-color-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.demo-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .sales-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .sales-page {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sales-header h1 {
+    font-size: 2rem;
+  }
+  
+  .sales-header p {
+    font-size: 1rem;
+  }
+  
+  .sales-left {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,212 @@
+.stock-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.stock-modal {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.product-info {
+  padding: 20px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.product-info h3 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.presentation-name {
+  margin: 0 0 12px 0;
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.current-stock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-stock span {
+  color: #555;
+  font-size: 14px;
+}
+
+.adjustment-form {
+  padding: 24px;
+}
+
+.adjustment-type {
+  margin-bottom: 20px;
+}
+
+.adjustment-type label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: normal;
+  margin: 0;
+}
+
+.radio-option:hover {
+  background: #f8f9fa;
+  border-color: #0066cc;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
+}
+
+.radio-option input[type="radio"]:checked + label,
+.radio-option:has(input[type="radio"]:checked) {
+  background: #f0f8ff;
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.stock-input,
+.reason-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.stock-input:focus,
+.reason-select:focus {
+  outline: none;
+  border-color: #0066cc;
+}
+
+.stock-preview {
+  background: #f0f8ff;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.stock-preview span {
+  color: #0066cc;
+  font-size: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e5e9;
+}
+
+@media (max-width: 640px) {
+  .stock-modal-overlay {
+    padding: 10px;
+  }
+  
+  .stock-modal {
+    max-height: 95vh;
+  }
+  
+  .modal-header,
+  .product-info,
+  .adjustment-form {
+    padding: 20px;
+  }
+  
+  .radio-group {
+    gap: 12px;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .modal-actions button {
+    width: 100%;
+  }
+}
