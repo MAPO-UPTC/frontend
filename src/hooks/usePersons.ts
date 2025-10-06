@@ -124,6 +124,35 @@ export const usePersons = () => {
   }, [persons]);
 
   /**
+   * Crear nueva persona
+   */
+  const createPerson = useCallback(async (personData: Partial<PersonAPIResponse>) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      console.log('➕ usePersons - Creando persona:', personData);
+      
+      const newPerson = await personService.createPerson(personData);
+      
+      console.log('✅ usePersons - Persona creada exitosamente:', newPerson);
+      
+      // Recargar todas las personas desde el servidor para obtener la lista actualizada
+      console.log('🔄 usePersons - Recargando lista de personas desde el servidor...');
+      await loadPersons();
+      
+      return newPerson;
+    } catch (err) {
+      console.error('❌ usePersons - Error al crear persona:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear persona';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadPersons]);
+
+  /**
    * Recargar personas
    */
   const refresh = useCallback(() => {
@@ -157,6 +186,7 @@ export const usePersons = () => {
     searchPersons,
     clearSearch,
     refresh,
+    createPerson,
     
     // Utilidades
     getPersonById,

@@ -11,8 +11,15 @@ export const SalesPage: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<PersonAPIResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCustomerSelect = (customer: PersonAPIResponse) => {
+  const handleCustomerSelect = (customer: PersonAPIResponse | null) => {
     setSelectedCustomer(customer);
+    
+    if (!customer) {
+      // Si no hay cliente, limpiar el customer del store
+      setCustomer(null as any);
+      return;
+    }
+    
     // Convert PersonAPIResponse to Person for cart compatibility
     const person = {
       id: customer.id,

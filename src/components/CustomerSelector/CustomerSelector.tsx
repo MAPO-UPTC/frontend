@@ -6,9 +6,29 @@ import './CustomerSelector.css';
 
 interface CustomerSelectorProps {
   selectedCustomer: PersonAPIResponse | null;
-  onCustomerSelect: (customer: PersonAPIResponse) => void;
+  onCustomerSelect: (customer: PersonAPIResponse | null) => void;
   disabled?: boolean;
 }
+
+interface PersonFormData {
+  name: string;
+  last_name: string;
+  document_type: string;
+  document_number: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+const INITIAL_FORM_DATA: PersonFormData = {
+  name: '',
+  last_name: '',
+  document_type: 'CC',
+  document_number: '',
+  email: '',
+  phone: '',
+  address: ''
+};
 
 export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
   selectedCustomer,
@@ -23,11 +43,16 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
     clearSearch, 
     formatPerson,
     isSearching,
-    filteredTotal
+    filteredTotal,
+    createPerson
   } = usePersons();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [formData, setFormData] = useState<PersonFormData>(INITIAL_FORM_DATA);
+  const [formErrors, setFormErrors] = useState<Partial<PersonFormData>>({});
+  const [isCreating, setIsCreating] = useState(false);
 
   // Debug logging
   useEffect(() => {
@@ -73,7 +98,7 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
 
   const handleClearSelection = () => {
     console.log('🗑️ CustomerSelector - Limpiando selección');
-    onCustomerSelect(null as any);
+    onCustomerSelect(null);
     setSearchTerm('');
     setIsDropdownOpen(false);
     clearSearch();
@@ -90,6 +115,77 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
     setTimeout(() => {
       setIsDropdownOpen(false);
     }, 200);
+  };
+
+  // Manejo del formulario de creación
+  const handleFormChange = (field: keyof PersonFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Limpiar error del campo cuando el usuario escribe
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Partial<PersonFormData> = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'El nombre es requerido';
+    }
+    
+    if (!formData.last_name.trim()) {
+      errors.last_name = 'El apellido es requerido';
+    }
+    
+    if (!formData.document_number.trim()) {
+      errors.document_number = 'El número de documento es requerido';
+    }
+    
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Email inválido';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreatePerson = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsCreating(true);
+    
+    try {
+      console.log('➕ CustomerSelector - Creando nueva persona:', formData);
+      
+      const newPerson = await createPerson(formData);
+      
+      console.log('✅ CustomerSelector - Persona creada:', newPerson);
+      
+      // Seleccionar automáticamente la persona creada
+      onCustomerSelect(newPerson as PersonAPIResponse);
+      
+      // Resetear formulario
+      setFormData(INITIAL_FORM_DATA);
+      setFormErrors({});
+      setShowCreateForm(false);
+      setSearchTerm('');
+      
+    } catch (error) {
+      console.error('❌ CustomerSelector - Error al crear persona:', error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const toggleCreateForm = () => {
+    setShowCreateForm(!showCreateForm);
+    setFormData(INITIAL_FORM_DATA);
+    setFormErrors({});
+    setIsDropdownOpen(false);
   };
 
   if (disabled) {
@@ -219,6 +315,147 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
               )}
             </small>
           </div>
+
+          {/* Botón para mostrar/ocultar formulario */}
+          <div className="create-person-toggle">
+            <button 
+              className="toggle-form-btn"
+              onClick={toggleCreateForm}
+              type="button"
+            >
+              {showCreateForm ? '❌ Cancelar' : '➕ Crear Nueva Persona'}
+            </button>
+          </div>
+
+          {/* Formulario de creación de persona */}
+          {showCreateForm && (
+            <form className="create-person-form" onSubmit={handleCreatePerson}>
+              <h4>➕ Crear Nueva Persona</h4>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>
+                    Nombre <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleFormChange('name', e.target.value)}
+                    className={formErrors.name ? 'error' : ''}
+                    placeholder="Juan"
+                    disabled={isCreating}
+                  />
+                  {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    Apellido <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => handleFormChange('last_name', e.target.value)}
+                    className={formErrors.last_name ? 'error' : ''}
+                    placeholder="Pérez"
+                    disabled={isCreating}
+                  />
+                  {formErrors.last_name && <span className="error-message">{formErrors.last_name}</span>}
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>
+                    Tipo de Documento <span className="required">*</span>
+                  </label>
+                  <select
+                    value={formData.document_type}
+                    onChange={(e) => handleFormChange('document_type', e.target.value)}
+                    disabled={isCreating}
+                  >
+                    <option value="CC">Cédula de Ciudadanía</option>
+                    <option value="CE">Cédula de Extranjería</option>
+                    <option value="TI">Tarjeta de Identidad</option>
+                    <option value="PAS">Pasaporte</option>
+                    <option value="NIT">NIT</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    Número de Documento <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.document_number}
+                    onChange={(e) => handleFormChange('document_number', e.target.value)}
+                    className={formErrors.document_number ? 'error' : ''}
+                    placeholder="1234567890"
+                    disabled={isCreating}
+                  />
+                  {formErrors.document_number && <span className="error-message">{formErrors.document_number}</span>}
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email (Opcional)</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleFormChange('email', e.target.value)}
+                    className={formErrors.email ? 'error' : ''}
+                    placeholder="correo@ejemplo.com"
+                    disabled={isCreating}
+                  />
+                  {formErrors.email && <span className="error-message">{formErrors.email}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Teléfono (Opcional)</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleFormChange('phone', e.target.value)}
+                    placeholder="3001234567"
+                    disabled={isCreating}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group full-width">
+                  <label>Dirección (Opcional)</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleFormChange('address', e.target.value)}
+                    placeholder="Calle 123 # 45-67"
+                    disabled={isCreating}
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={toggleCreateForm}
+                  disabled={isCreating}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={isCreating}
+                >
+                  {isCreating ? '⏳ Creando...' : '✅ Crear Persona'}
+                </Button>
+              </div>
+            </form>
+          )}
         </div>
       )}
     </div>
