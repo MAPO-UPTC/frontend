@@ -19,7 +19,9 @@ import {
   SaleDetailFullResponse,
   BulkConversionCreate,
   BulkConversionResponse,
-  BulkStockItem
+  BulkStockItem,
+  ProductCreate,
+  ProductCreateResponse
 } from '../types';
 
 export class MAPOAPIClient {
@@ -129,6 +131,18 @@ export class MAPOAPIClient {
 
   async getProductById(productId: UUID): Promise<Product> {
     return this.request<Product>(`/api/v1/inventory/products/${productId}`);
+  }
+
+  /**
+   * Crear un nuevo producto con sus presentaciones
+   * @param productData - Datos del producto y sus presentaciones
+   * @returns Respuesta del servidor con el producto creado
+   */
+  async createProduct(productData: ProductCreate): Promise<ProductCreateResponse> {
+    return this.request<ProductCreateResponse>('/products/', {
+      method: 'POST',
+      body: JSON.stringify(productData),
+    });
   }
 
   async getPresentationById(presentationId: UUID): Promise<any> {

@@ -371,6 +371,78 @@ export interface PaginatedResponse<T> {
   pages: number;
 }
 
+// ======= TIPOS DE CREACIÓN DE PRODUCTOS =======
+/**
+ * Unidades de medida permitidas
+ */
+export enum MeasurementUnit {
+  KILOGRAM = "kg",
+  GRAM = "g",
+  LITER = "L",
+  MILLILITER = "ml",
+  UNIT = "unidad"
+}
+
+/**
+ * Etiquetas legibles para las unidades
+ */
+export const UnitLabels: Record<MeasurementUnit, string> = {
+  [MeasurementUnit.KILOGRAM]: "Kilogramos",
+  [MeasurementUnit.GRAM]: "Gramos",
+  [MeasurementUnit.LITER]: "Litros",
+  [MeasurementUnit.MILLILITER]: "Mililitros",
+  [MeasurementUnit.UNIT]: "Unidades"
+};
+
+/**
+ * Interface para crear una presentación de producto
+ */
+export interface ProductPresentationCreate {
+  presentation_name: string;   // Nombre descriptivo (ej: "Bolsa 1kg")
+  quantity: number;             // Cantidad numérica (ej: 1, 25, 500)
+  unit: string;                 // Unidad de medida ("kg", "g", "L", "ml", "unidad")
+  price: number;                // Precio de venta
+  sku?: string | null;          // Código SKU opcional
+  active?: boolean;             // Si está activa (default: true)
+}
+
+/**
+ * Interface para crear un producto completo con presentaciones
+ */
+export interface ProductCreate {
+  name: string;                          // Nombre del producto
+  description: string;                   // Descripción detallada
+  brand?: string | null;                 // Marca (opcional)
+  base_unit?: string;                    // Unidad base (default: "kg")
+  category_id?: UUID | null;             // UUID de categoría
+  image_url?: string | null;             // URL de imagen
+  presentations: ProductPresentationCreate[];  // Array de presentaciones
+}
+
+/**
+ * Interface para la respuesta del servidor al crear producto
+ */
+export interface ProductCreateResponse {
+  message: string;
+  product: {
+    id: UUID;
+    name: string;
+    description: string;
+    brand?: string | null;
+    base_unit: string;
+    category_id?: UUID | null;
+    image_url?: string | null;
+  };
+}
+
+/**
+ * Interface para errores de validación
+ */
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
 // ======= TIPOS DE CONFIGURACIÓN =======
 export interface AppConfig {
   apiBaseUrl: string;

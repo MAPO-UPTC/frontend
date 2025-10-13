@@ -3,6 +3,7 @@ import { useInventory } from '../../hooks/useInventory';
 import { Button } from '../UI';
 import { Product, ProductPresentation, UUID } from '../../types';
 import BulkConversionModal from '../BulkConversionModal';
+import CreateProductForm from '../CreateProductForm/CreateProductForm';
 import './InventoryDashboard.css';
 
 interface InventoryDashboardProps {
@@ -23,6 +24,9 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estado para el modal de creación de producto
+  const [showCreateProductModal, setShowCreateProductModal] = useState(false);
   
   // Estado para el modal de conversión a granel
   const [bulkConversionModal, setBulkConversionModal] = useState<{
@@ -112,6 +116,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     handleCloseBulkConversion();
   };
 
+  const handleCreateProductSuccess = () => {
+    // Recargar los productos después de crear uno nuevo
+    if (selectedCategory) {
+      loadProductsForCategory(selectedCategory);
+    } else {
+      loadProducts();
+    }
+    setShowCreateProductModal(false);
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -129,7 +143,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       <div className="dashboard-header">
         <h2>Gestión de Inventario</h2>
         <div className="header-actions">
-          <Button variant="primary">
+          <Button variant="primary" onClick={() => setShowCreateProductModal(true)}>
             + Nuevo Producto
           </Button>
           <Button variant="secondary">
@@ -286,6 +300,18 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           onClose={handleCloseBulkConversion}
           onSuccess={handleBulkConversionSuccess}
         />
+      )}
+
+      {/* Modal de creación de producto */}
+      {showCreateProductModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateProductModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <CreateProductForm
+              onSuccess={handleCreateProductSuccess}
+              onCancel={() => setShowCreateProductModal(false)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
