@@ -15,7 +15,8 @@ import {
   APIError,
   Person,
   Supplier,
-  SalesFilters
+  SalesFilters,
+  SaleDetailFullResponse
 } from '../types';
 
 export class MAPOAPIClient {
@@ -229,6 +230,11 @@ export class MAPOAPIClient {
     const endpoint = `/sales/${queryString ? '?' + queryString : ''}`;
     
     return this.request<Sale[]>(endpoint);
+  }
+
+  // ======= SALE DETAILS ENDPOINT =======
+  async getSaleDetails(saleId: UUID): Promise<SaleDetailFullResponse> {
+    return this.request<SaleDetailFullResponse>(`/sales/${saleId}/details`);
   }
 
   // ======= REPORTS ENDPOINTS =======

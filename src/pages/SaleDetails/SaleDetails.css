@@ -1,0 +1,488 @@
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
+.sale-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* ========================================
+   HEADER CON ACCIONES
+   ======================================== */
+.sale-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #e5e7eb;
+}
+
+.sale-details-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+.btn-back,
+.btn-print {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-back {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-back:hover {
+  background-color: #4b5563;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-print {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-print:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* ========================================
+   ESTADOS DE CARGA Y ERROR
+   ======================================== */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.error-state h2 {
+  color: #dc2626;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.error-state p {
+  color: #6b7280;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   CONTENIDO PRINCIPAL
+   ======================================== */
+.sale-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ========================================
+   SECCIONES DE INFORMACIÓN
+   ======================================== */
+.info-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.info-section h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #1f2937;
+  font-weight: 700;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 12px;
+}
+
+/* ========================================
+   GRID DE INFORMACIÓN
+   ======================================== */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item .value {
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.info-item .value.code {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #3b82f6;
+  font-size: 18px;
+}
+
+.info-item .value.total {
+  font-size: 24px;
+  font-weight: 700;
+  color: #059669;
+}
+
+/* ========================================
+   BADGES DE ESTADO
+   ======================================== */
+.badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.status-completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge.status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* ========================================
+   SECCIÓN DE PERSONAS
+   ======================================== */
+.people-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.customer-info {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid #3b82f6;
+}
+
+.seller-info {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+}
+
+/* ========================================
+   TABLA DE ITEMS
+   ======================================== */
+.table-responsive {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.items-table thead {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.items-table th {
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.items-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+}
+
+.items-table tbody tr:hover {
+  background-color: #f9fafb;
+  transition: background-color 0.2s ease;
+}
+
+.items-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Alineación de texto en tabla */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* Colores para valores financieros */
+.cost {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.profit {
+  color: #059669;
+  font-weight: 700;
+}
+
+.loss {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* Badge de venta a granel */
+.bulk-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 8px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  font-size: 11px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid #fbbf24;
+}
+
+/* ========================================
+   RESUMEN FINANCIERO
+   ======================================== */
+.financial-summary {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 4px solid #059669;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.summary-item.highlight {
+  border: 2px solid #059669;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.summary-item .label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-item .value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ========================================
+   ESTILOS PARA IMPRESIÓN
+   ======================================== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .sale-details-container {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .info-section {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+
+  .items-table {
+    font-size: 12px;
+  }
+
+  .items-table th,
+  .items-table td {
+    padding: 8px;
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media screen and (max-width: 1024px) {
+  .sale-details-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .sale-details-header h1 {
+    text-align: center;
+    font-size: 24px;
+  }
+
+  .btn-back,
+  .btn-print {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sale-details-container {
+    padding: 12px;
+  }
+
+  .info-section {
+    padding: 16px;
+  }
+
+  .info-section h2 {
+    font-size: 18px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .people-section {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .items-table {
+    font-size: 12px;
+  }
+
+  .items-table th,
+  .items-table td {
+    padding: 10px 8px;
+  }
+
+  /* Ocultar algunas columnas en móvil */
+  .items-table th:nth-child(5),
+  .items-table td:nth-child(5) {
+    display: none;
+  }
+
+  .info-item .value.total {
+    font-size: 20px;
+  }
+
+  .summary-item .value {
+    font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .sale-details-header h1 {
+    font-size: 20px;
+  }
+
+  .btn-back,
+  .btn-print {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .items-table th,
+  .items-table td {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+
+  /* Ocultar más columnas en pantallas muy pequeñas */
+  .items-table th:nth-child(2),
+  .items-table td:nth-child(2),
+  .items-table th:nth-child(7),
+  .items-table td:nth-child(7) {
+    display: none;
+  }
+}

@@ -174,6 +174,35 @@ export interface SaleDetail {
   bulk_conversion_id?: UUID | null;
 }
 
+// ======= TIPOS EXTENDIDOS PARA DETALLES DE VENTA =======
+export interface SaleDetailExtended {
+  id: UUID;
+  sale_id: UUID;
+  presentation_id: UUID;
+  lot_detail_id: UUID | null;
+  bulk_conversion_id: UUID | null;
+  quantity: number;
+  unit_price: number;
+  line_total: number; // quantity × unit_price
+  product_name: string; // Nombre del producto
+  presentation_name: string; // Nombre de la presentación
+  cost_price: number; // Precio de costo del producto
+}
+
+export interface SaleDetailFullResponse {
+  id: UUID;
+  sale_code: string;
+  sale_date: Timestamp;
+  customer_id: UUID;
+  user_id: UUID;
+  total: number;
+  status: string;
+  customer_name: string; // Nombre completo del cliente
+  customer_document: string; // Tipo y número de documento
+  seller_name: string; // Nombre completo del vendedor
+  items: SaleDetailExtended[]; // Items con información extendida
+}
+
 export interface SalesReportFilter {
   start_date?: Timestamp;
   end_date?: Timestamp;

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store';
 import { Sale } from '../../types';
 import { getSaleItemsCount, calculateSaleTotal } from '../../utils/salesHelpers';
@@ -7,6 +8,7 @@ import './SalesHistory.css';
 type FilterType = 'all' | 'today' | 'week' | 'month' | 'custom';
 
 export const SalesHistory: React.FC = () => {
+  const navigate = useNavigate();
   const {
     sales,
     loadSalesHistory,
@@ -283,7 +285,7 @@ export const SalesHistory: React.FC = () => {
                     <td className="actions-cell">
                       <button
                         className="view-details-btn"
-                        onClick={() => console.log('Ver detalles:', sale.id)}
+                        onClick={() => navigate(`/sales/${sale.id}/details`)}
                         title="Ver detalles de la venta"
                       >
                         👁️ Ver
