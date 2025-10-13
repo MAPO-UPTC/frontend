@@ -326,6 +326,31 @@ export interface SalesFilters {
   end_date?: string;
 }
 
+// ======= TIPOS DE CONVERSIÓN A GRANEL =======
+export interface BulkConversionCreate {
+  source_lot_detail_id: UUID;      // ID del lote empaquetado origen
+  target_presentation_id: UUID;    // ID de la presentación a granel destino
+  converted_quantity: number;      // Cantidad de bultos/paquetes a abrir (entero)
+  unit_conversion_factor: number;  // Cantidad que contiene cada bulto (entero)
+}
+
+export interface BulkConversionResponse {
+  message: string;
+  bulk_conversion_id: UUID;        // UUID de la conversión creada
+  converted_quantity: number;      // Cantidad total convertida
+  remaining_bulk: number;          // Cantidad disponible a granel
+  status: string;                  // Estado: "ACTIVE", "COMPLETED", "CANCELLED"
+}
+
+export interface BulkStockItem {
+  bulk_conversion_id: UUID;
+  remaining_bulk: number;
+  converted_quantity: number;
+  target_presentation_id: UUID;
+  conversion_date: Timestamp;
+  status: string;                  // "ACTIVE", "COMPLETED", "CANCELLED"
+}
+
 // ======= TIPOS DE RESPUESTA API =======
 export interface APIResponse<T> {
   data: T;

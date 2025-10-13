@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useInventory } from '../../hooks/useInventory';
 import { Button } from '../UI';
-import { Product } from '../../types';
+import { Product, ProductPresentation, UUID } from '../../types';
+import BulkConversionModal from '../BulkConversionModal';
 import './InventoryDashboard.css';
 
 interface InventoryDashboardProps {
@@ -22,6 +23,29 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estado para el modal de conversión a granel
+  const [bulkConversionModal, setBulkConversionModal] = useState<{
+    isOpen: boolean;
+    presentationId: UUID | null;
+    targetPresentationId: UUID | null;  // ID de la presentación a granel destino
+    productName: string;
+    presentationName: string;
+    presentationQuantity: number;
+    presentationUnit: string;
+    availablePackages: number;
+    productId: UUID | null;
+  }>({
+    isOpen: false,
+    presentationId: null,
+    targetPresentationId: null,
+    productName: '',
+    presentationName: '',
+    presentationQuantity: 0,
+    presentationUnit: '',
+    availablePackages: 0,
+    productId: null
+  });
 
   useEffect(() => {
     loadCategoriesData();
@@ -35,6 +59,57 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     } else {
       await loadProducts();
     }
+  };
+
+  const handleOpenBulkConversion = (
+    product: Product,
+    presentation: ProductPresentation
+  ) => {
+    // Buscar la presentación a granel del mismo producto
+    const bulkPresentation = product.presentations?.find(
+      p => p.presentation_name.toLowerCase().includes('granel')
+    );
+
+    if (!bulkPresentation) {
+      console.error('No se encontró presentación a granel para este producto');
+      return;
+    }
+
+    setBulkConversionModal({
+      isOpen: true,
+      presentationId: presentation.id,
+      targetPresentationId: bulkPresentation.id,
+      productName: product.name,
+      presentationName: presentation.presentation_name,
+      presentationQuantity: presentation.quantity,
+      presentationUnit: presentation.unit,
+      availablePackages: presentation.stock_available || 0,
+      productId: product.id
+    });
+  };
+
+  const handleCloseBulkConversion = () => {
+    setBulkConversionModal({
+      isOpen: false,
+      presentationId: null,
+      targetPresentationId: null,
+      productName: '',
+      presentationName: '',
+      presentationQuantity: 0,
+      presentationUnit: '',
+      availablePackages: 0,
+      productId: null
+    });
+  };
+
+  const handleBulkConversionSuccess = () => {
+    // Recargar los productos para reflejar el cambio en el stock
+    if (selectedCategory) {
+      loadProductsForCategory(selectedCategory);
+    } else {
+      loadProducts();
+    }
+    handleCloseBulkConversion();
   };
 
   const filteredProducts = products.filter(product =>
@@ -144,19 +219,40 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                 <div className="presentations-list">
                   {product.presentations.map(presentation => (
                     <div key={presentation.id} className="presentation-item">
-                      <span className="presentation-name">
-                        {presentation.presentation_name}
-                      </span>
-                      <div className="stock-info">
-                        <span className={`stock-badge ${
-                          (presentation.stock_available || 0) === 0 ? 'out-of-stock' :
-                          (presentation.stock_available || 0) < 10 ? 'low-stock' : 'in-stock'
-                        }`}>
-                          Stock: {presentation.stock_available || 0}
+                      <div className="presentation-info-row">
+                        <span className="presentation-name">
+                          {presentation.presentation_name}
                         </span>
-                        <span className="price">
-                          ${presentation.price?.toLocaleString('es-CO')}
-                        </span>
+                        <div className="stock-info">
+                          <span className={`stock-badge ${
+                            (presentation.stock_available || 0) === 0 ? 'out-of-stock' :
+                            (presentation.stock_available || 0) < 10 ? 'low-stock' : 'in-stock'
+                          }`}>
+                            Stock: {presentation.stock_available || 0}
+                          </span>
+                          {presentation.bulk_stock_available > 0 && (
+                            <span className="stock-badge bulk-badge">
+                              Granel: {presentation.bulk_stock_available}{presentation.unit}
+                            </span>
+                          )}
+                          <span className="price">
+                            ${presentation.price?.toLocaleString('es-CO')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="presentation-actions">
+                        {(presentation.stock_available || 0) > 0 && (
+                          <Button 
+                            size="small" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenBulkConversion(product, presentation);
+                            }}
+                          >
+                            📦➡️🌾 Abrir a Granel
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -175,6 +271,22 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           )}
         </div>
       </div>
+
+      {/* Modal de conversión a granel */}
+      {bulkConversionModal.isOpen && bulkConversionModal.presentationId && bulkConversionModal.targetPresentationId && bulkConversionModal.productId && (
+        <BulkConversionModal
+          presentationId={bulkConversionModal.presentationId}
+          targetPresentationId={bulkConversionModal.targetPresentationId}
+          productName={bulkConversionModal.productName}
+          presentationName={bulkConversionModal.presentationName}
+          presentationQuantity={bulkConversionModal.presentationQuantity}
+          presentationUnit={bulkConversionModal.presentationUnit}
+          availablePackages={bulkConversionModal.availablePackages}
+          productId={bulkConversionModal.productId}
+          onClose={handleCloseBulkConversion}
+          onSuccess={handleBulkConversionSuccess}
+        />
+      )}
     </div>
   );
 };

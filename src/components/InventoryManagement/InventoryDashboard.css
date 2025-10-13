@@ -251,6 +251,39 @@
   justify-content: flex-end;
 }
 
+/* Estilos para conversion a granel */
+.presentation-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.presentation-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.presentation-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.bulk-badge {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
 @media (max-width: 768px) {
   .inventory-dashboard {
     padding: 16px;

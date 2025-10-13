@@ -16,7 +16,10 @@ import {
   Person,
   Supplier,
   SalesFilters,
-  SaleDetailFullResponse
+  SaleDetailFullResponse,
+  BulkConversionCreate,
+  BulkConversionResponse,
+  BulkStockItem
 } from '../types';
 
 export class MAPOAPIClient {
@@ -343,6 +346,48 @@ export class MAPOAPIClient {
     this.token = null;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  }
+
+  // ======= BULK CONVERSION ENDPOINTS =======
+  /**
+   * Abre un bulto/paquete y lo convierte a granel
+   */
+  async openBulkConversion(data: BulkConversionCreate): Promise<BulkConversionResponse> {
+    return this.request<BulkConversionResponse>('/products/open-bulk/', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  /**
+   * Obtiene stock a granel activo
+   */
+  async getActiveBulkStock(): Promise<BulkStockItem[]> {
+    return this.request<BulkStockItem[]>('/products/bulk-stock/');
+  }
+
+  /**
+   * Obtiene los detalles de lotes disponibles para una presentación específica
+   * Necesario para obtener el lot_detail_id requerido para la conversión a granel
+   * 
+   * El backend retorna los lotes ordenados por FIFO (First In, First Out)
+   * El primer elemento del array es siempre el lote más antiguo disponible
+   */
+  async getAvailableLotDetails(presentationId: UUID): Promise<LotDetail[]> {
+    const response = await this.request<{
+      success: boolean;
+      data: LotDetail[];
+      count: number;
+      metadata: {
+        presentation_id: string;
+        total_available_quantity: number;
+        oldest_lot_date: string;
+        newest_lot_date: string;
+      };
+    }>(`/inventory/presentations/${presentationId}/lot-details`);
+    
+    // Extraer solo el array de lotes del objeto de respuesta
+    return response.data;
   }
 
   // Test connection
