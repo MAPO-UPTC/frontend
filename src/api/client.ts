@@ -23,7 +23,7 @@ export class MAPOAPIClient {
 
   constructor(baseURL: string = process.env.REACT_APP_API_BASE_URL || 'http://142.93.187.32:8000') {
     this.baseURL = baseURL;
-    this.token = localStorage.getItem('token');
+    // No inicializamos el token aquí, se obtiene dinámicamente en getHeaders()
   }
 
   private getHeaders(): Record<string, string> {
@@ -31,8 +31,10 @@ export class MAPOAPIClient {
       'Content-Type': 'application/json',
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Siempre obtener el token actualizado del localStorage
+    const currentToken = localStorage.getItem('token');
+    if (currentToken) {
+      headers['Authorization'] = `Bearer ${currentToken}`;
     }
 
     return headers;
@@ -65,6 +67,12 @@ export class MAPOAPIClient {
           detail: errorData.detail || `HTTP ${response.status}`,
           status: response.status
         };
+        
+        // Log detallado para errores de validación (422)
+        if (response.status === 422) {
+          console.error('🚨 Validation Error (422):', JSON.stringify(errorData, null, 2));
+        }
+        
         throw error;
       }
 
@@ -85,7 +93,7 @@ export class MAPOAPIClient {
 
   // ======= AUTH ENDPOINTS =======
   async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/auth/login', {
+    const response = await this.request<AuthResponse>('/api/v1/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -103,27 +111,27 @@ export class MAPOAPIClient {
 
   // ======= INVENTORY ENDPOINTS =======
   async getCategories(): Promise<Category[]> {
-    return this.request<Category[]>('/inventory/categories');
+    return this.request<Category[]>('/api/v1/inventory/categories');
   }
 
   async getProductsByCategory(categoryId: UUID): Promise<Product[]> {
-    return this.request<Product[]>(`/inventory/categories/${categoryId}/products`);
+    return this.request<Product[]>(`/api/v1/inventory/categories/${categoryId}/products`);
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/inventory/products');
+    return this.request<Product[]>('/api/v1/inventory/products');
   }
 
   async getProductById(productId: UUID): Promise<Product> {
-    return this.request<Product>(`/inventory/products/${productId}`);
+    return this.request<Product>(`/api/v1/inventory/products/${productId}`);
   }
 
   async getPresentationById(presentationId: UUID): Promise<any> {
-    return this.request<any>(`/inventory/presentations/${presentationId}`);
+    return this.request<any>(`/api/v1/inventory/presentations/${presentationId}`);
   }
 
   async getStock(presentationId: UUID): Promise<StockInfo> {
-    return this.request<StockInfo>(`/inventory/presentations/${presentationId}/stock`);
+    return this.request<StockInfo>(`/api/v1/inventory/presentations/${presentationId}/stock`);
   }
 
   async createLot(lotData: {
@@ -132,18 +140,18 @@ export class MAPOAPIClient {
     lot_code: string;
     status: string;
   }): Promise<Lot> {
-    return this.request<Lot>('/inventory/lots', {
+    return this.request<Lot>('/api/v1/inventory/lots', {
       method: 'POST',
       body: JSON.stringify(lotData),
     });
   }
 
   async getLots(): Promise<Lot[]> {
-    return this.request<Lot[]>('/inventory/lots');
+    return this.request<Lot[]>('/api/v1/inventory/lots');
   }
 
   async getLotById(lotId: UUID): Promise<Lot> {
-    return this.request<Lot>(`/inventory/lots/${lotId}`);
+    return this.request<Lot>(`/api/v1/inventory/lots/${lotId}`);
   }
 
   async addProductsToLot(
@@ -156,21 +164,21 @@ export class MAPOAPIClient {
       production_date?: Timestamp;
     }
   ): Promise<LotDetail> {
-    return this.request<LotDetail>(`/inventory/lots/${lotId}/products`, {
+    return this.request<LotDetail>(`/api/v1/inventory/lots/${lotId}/products`, {
       method: 'POST',
       body: JSON.stringify(productData),
     });
   }
 
   async getSuppliers(): Promise<Supplier[]> {
-    return this.request<Supplier[]>('/inventory/suppliers');
+    return this.request<Supplier[]>('/api/v1/inventory/suppliers');
   }
 
   async createSupplier(supplierData: {
     person_id: UUID;
     supplier_code: string;
   }): Promise<Supplier> {
-    return this.request<Supplier>('/inventory/suppliers', {
+    return this.request<Supplier>('/api/v1/inventory/suppliers', {
       method: 'POST',
       body: JSON.stringify(supplierData),
     });
@@ -228,7 +236,7 @@ export class MAPOAPIClient {
 
   // ======= CUSTOMERS ENDPOINTS =======
   async getCustomers(): Promise<Person[]> {
-    return this.request<Person[]>('/customers');
+    return this.request<Person[]>('/api/v1/customers');
   }
 
   // New endpoint for persons

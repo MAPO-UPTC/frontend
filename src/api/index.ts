@@ -11,7 +11,8 @@ export type {
   ProductPresentation,
   Sale,
   SaleCreate,
-  SaleItem,
+  SaleItemCreate,  // ✅ Cambiado de SaleItem a SaleItemCreate
+  SaleDetail,      // ✅ Agregado SaleDetail
   StockInfo,
   CartItem,
   Notification,

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { CustomerSelector, ProductSearch, SalesCart } from '../../components';
 import { useSales } from '../../hooks/useSales';
+import { useInventory } from '../../hooks/useInventory';
 import { useMAPOStore } from '../../store';
 import { PersonAPIResponse, ProductPresentation } from '../../types';
 import './SalesPage.css';
 
 export const SalesPage: React.FC = () => {
   const { cart, addProductToCart, processSale, getCartSummary } = useSales();
+  const { loadProducts } = useInventory();
   const { setCustomer } = useMAPOStore();
   const [selectedCustomer, setSelectedCustomer] = useState<PersonAPIResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -77,12 +79,31 @@ export const SalesPage: React.FC = () => {
     try {
       const sale = await processSale();
       if (sale) {
+        // Limpiar el cliente seleccionado
         setSelectedCustomer(null);
-        alert(`Venta ${sale.sale_code} procesada exitosamente`);
+        
+        // Mostrar confirmación detallada
+        const saleDate = new Date(sale.sale_date).toLocaleString('es-CO', {
+          dateStyle: 'long',
+          timeStyle: 'short'
+        });
+        
+        alert(
+          `✅ ¡Venta Exitosa!\n\n` +
+          `ID: ${sale.id}\n` +  // ✅ Usar sale.id en lugar de sale_code
+          `Total: ${sale.total_amount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}\n` +  // ✅ total_amount
+          `Fecha: ${saleDate}\n` +
+          `Items: ${sale.sale_details?.length || cart.items.length}`  // ✅ sale_details
+        );
+        
+        // Recargar productos para actualizar stock
+        console.log('🔄 Recargando productos para actualizar stock...');
+        await loadProducts();
+        console.log('✅ Productos actualizados');
       }
     } catch (error) {
       console.error('Error processing sale:', error);
-      alert('Error al procesar la venta');
+      alert('❌ Error al procesar la venta. Por favor intenta de nuevo.');
     } finally {
       setIsProcessing(false);
     }

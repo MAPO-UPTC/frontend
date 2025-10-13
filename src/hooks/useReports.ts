@@ -41,14 +41,14 @@ export const useReports = () => {
   const getSalesStats = useCallback(() => {
     const salesData = sales.sales;
     const totalSales = salesData.length;
-    const totalRevenue = salesData.reduce((sum, sale) => sum + sale.total, 0);
+    const totalRevenue = salesData.reduce((sum, sale) => sum + sale.total_amount, 0);  // ✅ total_amount
     const averageSaleValue = totalSales > 0 ? totalRevenue / totalSales : 0;
 
     const today = new Date().toISOString().split('T')[0];
     const todaySales = salesData.filter(sale => 
       sale.sale_date.split('T')[0] === today
     );
-    const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+    const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.total_amount, 0);  // ✅ total_amount
 
     return {
       totalSales,
@@ -90,7 +90,7 @@ export const useReports = () => {
           salesCount: 0,
         };
         
-        existing.totalAmount += sale.total;
+        existing.totalAmount += sale.total_amount;  // ✅ total_amount
         existing.salesCount += 1;
         customerSales.set(customerId, existing);
       }

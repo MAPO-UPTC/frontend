@@ -133,41 +133,40 @@ export interface StockInfo {
 }
 
 // ======= TIPOS DE VENTAS =======
-export interface SaleItem {
-  presentation_id: UUID;
+// Estructura para CREAR una venta (request al backend)
+export interface SaleItemCreate {
+  presentation_id: UUID;  // ✅ presentation_id (según backend real)
   quantity: number;
   unit_price: number;
 }
 
 export interface SaleCreate {
   customer_id: UUID;
-  status: "completed" | "pending" | "cancelled";
-  items: SaleItem[];
+  status: "completed" | "pending" | "cancelled";  // ✅ Campo requerido
+  items: SaleItemCreate[];  // ✅ items (NO sale_items)
 }
 
+// Estructura de RESPUESTA del backend
 export interface Sale {
   id: UUID;
-  sale_code: string;
-  sale_date: Timestamp;
   customer_id: UUID;
-  user_id: UUID;
-  total: number;
-  status: "completed" | "pending" | "cancelled";
-  items: SaleDetail[];
+  sale_date: Timestamp;
+  total_amount: number;
+  status: string;
+  notes?: string;
+  sale_details: SaleDetail[];
   customer?: Person;
-  user?: User;
 }
 
 export interface SaleDetail {
   id: UUID;
-  sale_id: UUID;
-  presentation_id: UUID;
-  lot_detail_id?: UUID;
-  bulk_conversion_id?: UUID;
+  product_id: UUID;
+  product_name: string;
   quantity: number;
   unit_price: number;
-  line_total: number;
-  presentation?: ProductPresentation;
+  subtotal: number;
+  lot_detail_id?: UUID | null;
+  bulk_conversion_id?: UUID | null;
 }
 
 export interface SalesReportFilter {

@@ -198,18 +198,100 @@ export const useMAPOStore = create<MAPOStore>()(
 
       // ======= CART ACTIONS =======
       addToCart: async (presentation: ProductPresentation, quantity: number, unitPrice: number) => {
-        const newItem: CartItem = {
-          presentation,
-          quantity,
-          unit_price: unitPrice,
-          line_total: quantity * unitPrice,
-          max_available: presentation.stock_available || 999
-        };
+        // Validar cantidad
+        if (quantity <= 0) {
+          get().addNotification({
+            type: 'error',
+            title: 'Cantidad inválida',
+            message: 'La cantidad debe ser mayor a 0'
+          });
+          return false;
+        }
+        
+        // Determinar si es producto a granel
+        const isBulk = presentation.presentation_name?.toLowerCase().includes('granel') || 
+                       (presentation.bulk_stock_available !== undefined && presentation.bulk_stock_available > 0);
+        
+        // Obtener stock disponible
+        const availableStock = isBulk 
+          ? (presentation.bulk_stock_available || 0)
+          : (presentation.stock_available || 0);
+        
+        // Validar stock disponible
+        if (availableStock <= 0) {
+          get().addNotification({
+            type: 'error',
+            title: 'Sin stock',
+            message: `No hay stock disponible para ${presentation.presentation_name}`
+          });
+          return false;
+        }
+        
+        if (quantity > availableStock) {
+          get().addNotification({
+            type: 'error',
+            title: 'Stock insuficiente',
+            message: `Stock disponible: ${availableStock} ${isBulk ? 'kg' : 'unidades'}. Solicitado: ${quantity}`
+          });
+          return false;
+        }
+        
+        // Verificar si el producto ya está en el carrito
+        const state = get();
+        const existingItemIndex = state.cart.items.findIndex(
+          item => item.presentation.id === presentation.id
+        );
+        
+        if (existingItemIndex !== -1) {
+          // Si ya existe, actualizar cantidad
+          const existingItem = state.cart.items[existingItemIndex];
+          const newQuantity = existingItem.quantity + quantity;
+          
+          if (newQuantity > availableStock) {
+            get().addNotification({
+              type: 'error',
+              title: 'Stock insuficiente',
+              message: `No puedes agregar más. Stock disponible: ${availableStock} ${isBulk ? 'kg' : 'unidades'}`
+            });
+            return false;
+          }
+          
+          // Actualizar la cantidad
+          set((state) => {
+            const newItems = state.cart.items.map((item, index) => {
+              if (index === existingItemIndex) {
+                return {
+                  ...item,
+                  quantity: newQuantity,
+                  line_total: newQuantity * item.unit_price
+                };
+              }
+              return item;
+            });
+            const subtotal = newItems.reduce((sum, item) => sum + item.line_total, 0);
+            return { cart: { ...state.cart, items: newItems, subtotal, total: subtotal } };
+          });
+        } else {
+          // Agregar nuevo item
+          const newItem: CartItem = {
+            presentation,
+            quantity,
+            unit_price: unitPrice,
+            line_total: quantity * unitPrice,
+            max_available: availableStock
+          };
 
-        set((state) => {
-          const newItems = [...state.cart.items, newItem];
-          const subtotal = newItems.reduce((sum, item) => sum + item.line_total, 0);
-          return { cart: { ...state.cart, items: newItems, subtotal, total: subtotal } };
+          set((state) => {
+            const newItems = [...state.cart.items, newItem];
+            const subtotal = newItems.reduce((sum, item) => sum + item.line_total, 0);
+            return { cart: { ...state.cart, items: newItems, subtotal, total: subtotal } };
+          });
+        }
+        
+        get().addNotification({
+          type: 'success',
+          title: 'Producto agregado',
+          message: `${presentation.presentation_name} x${quantity} agregado al carrito`
         });
 
         return true;
@@ -284,7 +366,101 @@ export const useMAPOStore = create<MAPOStore>()(
 
       // ======= SALES ACTIONS =======
       createSale: async () => {
-        return null;
+        const state = get();
+        
+        if (!state.cart.customer) {
+          console.error('No customer selected');
+          get().addNotification({
+            type: 'error',
+            title: 'Error',
+            message: 'Debes seleccionar un cliente'
+          });
+          return null;
+        }
+        
+        if (state.cart.items.length === 0) {
+          console.error('Cart is empty');
+          get().addNotification({
+            type: 'error',
+            title: 'Error',
+            message: 'El carrito está vacío'
+          });
+          return null;
+        }
+        
+        try {
+          // ⚠️ ESTRUCTURA CORRECTA según el backend real:
+          // {
+          //   customer_id: "uuid",
+          //   status: "completed",
+          //   items: [
+          //     {
+          //       presentation_id: "uuid",
+          //       quantity: 2,
+          //       unit_price: 8300
+          //     }
+          //   ]
+          // }
+          
+          const saleData = {
+            customer_id: state.cart.customer.id,
+            status: 'completed' as const,  // ✅ Requerido por el backend
+            items: state.cart.items.map(item => ({
+              presentation_id: item.presentation.id,  // ✅ presentation_id
+              quantity: item.quantity,
+              unit_price: item.unit_price
+            }))
+          };
+          
+          console.log('📤 Enviando venta al backend:');
+          console.log('   Customer ID:', saleData.customer_id);
+          console.log('   Status:', saleData.status);
+          console.log('   Items:', saleData.items);
+          console.log('   Full Data:', JSON.stringify(saleData, null, 2));
+          
+          // Llamar al API
+          const sale = await apiClient.createSale(saleData);
+          
+          console.log('✅ Venta creada exitosamente:', sale);
+          
+          // Agregar la venta al estado
+          set((state) => ({
+            sales: {
+              ...state.sales,
+              sales: [sale, ...state.sales.sales],
+              currentSale: sale
+            }
+          }));
+          
+          // Limpiar el carrito
+          set((state) => ({
+            cart: {
+              ...state.cart,
+              items: [],
+              total: 0,
+              customer: null
+            }
+          }));
+          
+          // Agregar notificación de éxito
+          get().addNotification({
+            type: 'success',
+            title: 'Venta Exitosa',
+            message: `Venta procesada correctamente. Total: $${sale.total_amount.toLocaleString('es-CO')}`
+          });
+          
+          return sale;
+        } catch (error: any) {
+          console.error('❌ Error al crear venta:', error);
+          
+          get().addNotification({
+            type: 'error',
+            title: 'Error al procesar venta',
+            message: error.detail || error.message || 'Error desconocido'
+          });
+          
+          return null;
+        }
       },
 
       loadSales: async () => {},
