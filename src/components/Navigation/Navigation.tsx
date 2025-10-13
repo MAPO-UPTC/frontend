@@ -23,6 +23,12 @@ const navigationItems: NavigationItem[] = [
     permission: 'sales:read'
   },
   {
+    path: '/sales/history',
+    label: 'Historial',
+    icon: '📋',
+    permission: 'sales:read'
+  },
+  {
     path: '/inventory',
     label: 'Inventario',
     icon: '📦',

@@ -7,6 +7,7 @@ export * from './validation';
 export * from './formatters';
 export * from './localStorage';
 export * from './permissions';
+export * from './salesHelpers';
 
 // Utilidades adicionales
 export const debounce = (func, wait) => {

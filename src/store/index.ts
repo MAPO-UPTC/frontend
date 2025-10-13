@@ -39,6 +39,14 @@ interface MAPOStore extends AppState {
   loadSales: () => Promise<void>;
   loadSaleById: (saleId: UUID) => Promise<void>;
   
+  // ======= SALES HISTORY ACTIONS =======
+  loadSalesHistory: (filters?: import('../types').SalesFilters) => Promise<void>;
+  loadMoreSales: () => Promise<void>;
+  filterSalesByDateRange: (startDate: Date, endDate: Date) => Promise<void>;
+  filterSalesByLastDays: (days: number) => Promise<void>;
+  clearSalesFilters: () => Promise<void>;
+  setSalesFilters: (filters: import('../types').SalesFilters) => void;
+  
   // ======= INVENTORY ACTIONS =======
   loadCategories: () => Promise<void>;
   loadProductsByCategory: (categoryId: UUID) => Promise<void>;
@@ -152,6 +160,11 @@ const initialState: AppState = {
   sales: {
     sales: [],
     currentSale: null,
+    filters: {
+      skip: 0,
+      limit: 50,
+    },
+    hasMore: true,
     reports: {
       bestSelling: [],
       dailySummary: [],
@@ -443,10 +456,11 @@ export const useMAPOStore = create<MAPOStore>()(
           }));
           
           // Agregar notificación de éxito
+          const totalAmount = sale.total_amount || sale.total || 0;
           get().addNotification({
             type: 'success',
             title: 'Venta Exitosa',
-            message: `Venta procesada correctamente. Total: $${sale.total_amount.toLocaleString('es-CO')}`
+            message: `Venta procesada correctamente. Total: $${totalAmount.toLocaleString('es-CO')}`
           });
           
           return sale;
@@ -466,6 +480,115 @@ export const useMAPOStore = create<MAPOStore>()(
       loadSales: async () => {},
 
       loadSaleById: async (saleId) => {},
+
+      // ======= SALES HISTORY ACTIONS =======
+      loadSalesHistory: async (filters = {}) => {
+        const currentState = get();
+        
+        set((state) => ({
+          sales: { ...state.sales, loading: true }
+        }));
+
+        try {
+          const mergedFilters = {
+            ...currentState.sales.filters,
+            ...filters
+          };
+
+          const salesData = await apiClient.getSales(mergedFilters);
+          
+          set((state) => ({
+            sales: {
+              ...state.sales,
+              sales: salesData,
+              filters: mergedFilters,
+              hasMore: salesData.length === (mergedFilters.limit || 50),
+              loading: false
+            }
+          }));
+        } catch (error: any) {
+          console.error('Error loading sales history:', error);
+          set((state) => ({
+            sales: { ...state.sales, loading: false }
+          }));
+          
+          get().addNotification({
+            type: 'error',
+            title: 'Error al cargar historial',
+            message: error.detail || error.message || 'No se pudo cargar el historial de ventas'
+          });
+        }
+      },
+
+      loadMoreSales: async () => {
+        const state = get();
+        if (!state.sales.hasMore || state.sales.loading) return;
+
+        set((state) => ({
+          sales: { ...state.sales, loading: true }
+        }));
+
+        try {
+          const currentFilters = state.sales.filters;
+          const newSkip = state.sales.sales.length;
+          
+          const moreSales = await apiClient.getSales({
+            ...currentFilters,
+            skip: newSkip
+          });
+
+          set((state) => ({
+            sales: {
+              ...state.sales,
+              sales: [...state.sales.sales, ...moreSales],
+              filters: { ...currentFilters, skip: newSkip },
+              hasMore: moreSales.length === (currentFilters.limit || 50),
+              loading: false
+            }
+          }));
+        } catch (error: any) {
+          console.error('Error loading more sales:', error);
+          set((state) => ({
+            sales: { ...state.sales, loading: false }
+          }));
+        }
+      },
+
+      filterSalesByDateRange: async (startDate: Date, endDate: Date) => {
+        await get().loadSalesHistory({
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          skip: 0
+        });
+      },
+
+      filterSalesByLastDays: async (days: number) => {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - days);
+
+        await get().loadSalesHistory({
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          skip: 0
+        });
+      },
+
+      clearSalesFilters: async () => {
+        await get().loadSalesHistory({
+          skip: 0,
+          limit: 50
+        });
+      },
+
+      setSalesFilters: (filters) => {
+        set((state) => ({
+          sales: {
+            ...state.sales,
+            filters: { ...state.sales.filters, ...filters }
+          }
+        }));
+      },
 
       // ======= INVENTORY ACTIONS =======
       loadCategories: async () => {},
@@ -587,3 +710,6 @@ export const useMAPOStore = create<MAPOStore>()(
     { name: 'mapo-store' }
   )
 );
+
+// Export an alias for convenience
+export const useStore = useMAPOStore;

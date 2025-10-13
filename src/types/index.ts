@@ -149,22 +149,27 @@ export interface SaleCreate {
 // Estructura de RESPUESTA del backend
 export interface Sale {
   id: UUID;
+  sale_code?: string; // Código de venta (ej: VEN-20251012143000)
   customer_id: UUID;
+  user_id?: UUID; // Usuario que realizó la venta
   sale_date: Timestamp;
-  total_amount: number;
+  total_amount?: number; // Para ventas individuales
+  total?: number; // Para historial de ventas
   status: string;
   notes?: string;
-  sale_details: SaleDetail[];
+  sale_details?: SaleDetail[]; // Algunos endpoints devuelven sale_details
+  items?: SaleDetail[]; // Otros endpoints devuelven items
   customer?: Person;
 }
 
 export interface SaleDetail {
   id: UUID;
   product_id: UUID;
-  product_name: string;
+  product_name?: string; // Opcional, puede no venir en items
   quantity: number;
   unit_price: number;
-  subtotal: number;
+  is_bulk_sale: boolean; // Indicador si es venta a granel
+  subtotal?: number; // Calculado en frontend
   lot_detail_id?: UUID | null;
   bulk_conversion_id?: UUID | null;
 }
@@ -236,6 +241,8 @@ export interface InventoryState {
 export interface SalesState {
   sales: Sale[];
   currentSale: Sale | null;
+  filters: SalesFilters;
+  hasMore: boolean;
   reports: {
     bestSelling: ProductSalesStats[];
     dailySummary: DailySalesSummary[];
@@ -280,6 +287,14 @@ export interface ReportFilter {
   startDate?: Timestamp;
   endDate?: Timestamp;
   type: 'sales' | 'inventory' | 'best-selling';
+}
+
+// ======= TIPOS DE HISTORIAL DE VENTAS =======
+export interface SalesFilters {
+  skip?: number;
+  limit?: number;
+  start_date?: string;
+  end_date?: string;
 }
 
 // ======= TIPOS DE RESPUESTA API =======

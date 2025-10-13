@@ -88,12 +88,14 @@ export const SalesPage: React.FC = () => {
           timeStyle: 'short'
         });
         
+        const totalAmount = sale.total_amount || sale.total || 0;
+        
         alert(
           `✅ ¡Venta Exitosa!\n\n` +
           `ID: ${sale.id}\n` +  // ✅ Usar sale.id en lugar de sale_code
-          `Total: ${sale.total_amount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}\n` +  // ✅ total_amount
+          `Total: ${totalAmount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}\n` +  // ✅ total_amount
           `Fecha: ${saleDate}\n` +
-          `Items: ${sale.sale_details?.length || cart.items.length}`  // ✅ sale_details
+          `Items: ${sale.items?.length || sale.sale_details?.length || cart.items.length}`  // ✅ items o sale_details
         );
         
         // Recargar productos para actualizar stock

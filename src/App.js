@@ -11,6 +11,7 @@ import Products from "./pages/products/Products";
 import CreateProduct from "./pages/createProduct/CreateProduct";
 import PermissionsDemo from "./pages/PermissionsDemo/PermissionsDemo";
 import { SalesPage } from "./pages/Sales/SalesPage";
+import { SalesHistory } from "./pages/SalesHistory/SalesHistory";
 import { Inventory } from "./pages/Inventory/Inventory";
 import { Reports } from "./pages/Reports/Reports";
 
@@ -69,6 +70,14 @@ function AnimatedRoutes() {
                 element={
                   <PrivateRoute>
                     <SalesPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/sales/history"
+                element={
+                  <PrivateRoute>
+                    <SalesHistory />
                   </PrivateRoute>
                 }
               />

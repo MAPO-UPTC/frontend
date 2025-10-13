@@ -14,7 +14,8 @@ import {
   Timestamp,
   APIError,
   Person,
-  Supplier
+  Supplier,
+  SalesFilters
 } from '../types';
 
 export class MAPOAPIClient {
@@ -192,10 +193,6 @@ export class MAPOAPIClient {
     });
   }
 
-  async getSales(skip: number = 0, limit: number = 50): Promise<Sale[]> {
-    return this.request<Sale[]>(`/sales/?skip=${skip}&limit=${limit}`);
-  }
-
   async getSaleById(saleId: UUID): Promise<Sale> {
     return this.request<Sale>(`/sales/${saleId}`);
   }
@@ -209,6 +206,29 @@ export class MAPOAPIClient {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
+  }
+
+  // ======= SALES HISTORY ENDPOINT =======
+  async getSales(filters: SalesFilters = {}): Promise<Sale[]> {
+    const params = new URLSearchParams();
+    
+    if (filters.skip !== undefined) {
+      params.append('skip', filters.skip.toString());
+    }
+    if (filters.limit !== undefined) {
+      params.append('limit', filters.limit.toString());
+    }
+    if (filters.start_date) {
+      params.append('start_date', filters.start_date);
+    }
+    if (filters.end_date) {
+      params.append('end_date', filters.end_date);
+    }
+
+    const queryString = params.toString();
+    const endpoint = `/sales/${queryString ? '?' + queryString : ''}`;
+    
+    return this.request<Sale[]>(endpoint);
   }
 
   // ======= REPORTS ENDPOINTS =======
