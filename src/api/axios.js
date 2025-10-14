@@ -5,7 +5,7 @@ import axios from "axios";
 const getApiBaseUrl = () => {
   // En desarrollo local: usar backend directo
   if (process.env.NODE_ENV === 'development') {
-    return process.env.REACT_APP_API_BASE_URL || "http://142.93.187.32:8000";
+    return process.env.REACT_APP_API_BASE_URL || "https://142.93.187.32.nip.io";
   }
   
   // En producción (Netlify): usar proxy relativo con prefijo /api/

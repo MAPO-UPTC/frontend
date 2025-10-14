@@ -81,7 +81,7 @@ export default function Home() {
         </div>
 
         <div style={{ marginTop: '3rem', opacity: 0.7 }}>
-          <p>🚀 Backend conectado a: http://142.93.187.32:8000</p>
+          <p>🚀 Backend conectado a: https://142.93.187.32.nip.io</p>
           <p>✅ Aplicación funcionando correctamente</p>
         </div>
       </div>

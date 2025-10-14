@@ -2,9 +2,9 @@
 # Esto evita conflictos con rutas del frontend como /login, /signup
 
 # Proxy endpoints con prefijo /api/ para separar del frontend
-/api/users/*  http://142.93.187.32:8000/users/:splat  200
-/api/products/*  http://142.93.187.32:8000/products/:splat  200
-/api/health  http://142.93.187.32:8000/health  200
+/api/users/*  https://142.93.187.32.nip.io/users/:splat  200
+/api/products/*  https://142.93.187.32.nip.io/products/:splat  200
+/api/health  https://142.93.187.32.nip.io/health  200
 
 # React Router fallback - TODAS las páginas del frontend
 /*    /index.html   200

@@ -1,10 +1,10 @@
 [build]
   ## Proxy para evitar Mixed Content (HTTP to HTTPS)
 # Redirige las peticiones /api/* al backend HTTP
-# Ejemplo: /api/categories -> http://https://142.93.187.32.nip.io/categories
+# Ejemplo: /api/categories -> https://142.93.187.32.nip.io/categories
 [[redirects]]
   from = "/api/*"
-  to = "http://https://142.93.187.32.nip.io/:splat"
+  to = "https://142.93.187.32.nip.io/:splat"
   status = 200
   force = true
 
@@ -30,7 +30,7 @@
 # :splat captura todo después de /api/ y lo reenvía al backend
 [[redirects]]
   from = "/api/*"
-  to = "http://https://142.93.187.32.nip.io/:splat"
+  to = "https://142.93.187.32.nip.io/:splat"
   status = 200
   force = true
   headers = {X-From = "Netlify"}
