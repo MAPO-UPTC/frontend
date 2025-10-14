@@ -17,6 +17,21 @@
   to = "https://142.93.187.32.nip.io/:splat"
   status = 200
   force = true
+  
+# Headers para CORS si es necesario
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
 
 # Configuración para Single Page Application (SPA)
 # Redirige todas las rutas al index.html para que React Router funcione

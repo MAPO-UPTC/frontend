@@ -4,6 +4,9 @@
 # Proxy endpoints con prefijo /api/ para separar del frontend
 /api/users/*  https://142.93.187.32.nip.io/users/:splat  200
 /api/products/*  https://142.93.187.32.nip.io/products/:splat  200
+/api/persons/*  https://142.93.187.32.nip.io/persons/:splat  200
+/api/categories/*  https://142.93.187.32.nip.io/categories/:splat  200
+/api/auth/*  https://142.93.187.32.nip.io/auth/:splat  200
 /api/health  https://142.93.187.32.nip.io/health  200
 
 # React Router fallback - TODAS las páginas del frontend
