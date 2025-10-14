@@ -1,5 +1,21 @@
 [build]
-  # Comando de build que ignora conflictos de peer dependencies
+  ## Proxy para evitar Mixed Content (HTTP to HTTPS)
+# Redirige las peticiones /api/* al backend HTTP
+# Ejemplo: /api/categories -> http://https://142.93.187.32.nip.io/categories
+[[redirects]]
+  from = "/api/*"
+  to = "http://https://142.93.187.32.nip.io/:splat"
+  status = 200
+  force = true
+
+# Configuración para Single Page Application (SPA)
+# Redirige todas las rutas al index.html para que React Router funcione
+# NOTA: Debe ir después del proxy de API
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = falsed que ignora conflictos de peer dependencies
   command = "npm run build"
   
   # Directorio donde se generan los archivos del build
@@ -11,12 +27,13 @@
 
 # Proxy para evitar Mixed Content (HTTP to HTTPS)
 # Redirige las peticiones /api/* al backend HTTP
-# IMPORTANTE: Este redirect debe ir ANTES del redirect del SPA
+# :splat captura todo después de /api/ y lo reenvía al backend
 [[redirects]]
   from = "/api/*"
-  to = "http://142.93.187.32:8000/:splat"
+  to = "http://https://142.93.187.32.nip.io/:splat"
   status = 200
   force = true
+  headers = {X-From = "Netlify"}
 
 # Configuración para Single Page Application (SPA)
 # Redirige todas las rutas al index.html para que React Router funcione
