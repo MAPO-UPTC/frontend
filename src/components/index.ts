@@ -8,3 +8,6 @@ export * from './InventoryManagement';
 
 // UI Components
 export * from './UI';
+
+// Permission Components
+export { default as PermissionGate } from './PermissionGate/PermissionGate';
