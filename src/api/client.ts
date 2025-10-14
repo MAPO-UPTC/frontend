@@ -33,12 +33,24 @@ import {
   InventoryStockReport
 } from '../types';
 
+// Configuración inteligente de URL base para el cliente TypeScript
+const getApiBaseUrl = (): string => {
+  // En desarrollo local: usar variable de entorno o backend directo
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.REACT_APP_API_BASE_URL || 'https://142.93.187.32.nip.io';
+  }
+  
+  // En producción (Netlify): usar proxy relativo con prefijo /api/
+  return process.env.REACT_APP_API_BASE_URL || '/api';
+};
+
 export class MAPOAPIClient {
   private baseURL: string;
   private token: string | null = null;
 
-  constructor(baseURL: string = process.env.REACT_APP_API_BASE_URL || 'http://142.93.187.32:8000') {
+  constructor(baseURL: string = getApiBaseUrl()) {
     this.baseURL = baseURL;
+    console.log('🔗 MAPOAPIClient initialized with baseURL:', this.baseURL);
     // No inicializamos el token aquí, se obtiene dinámicamente en getHeaders()
   }
 
@@ -127,7 +139,7 @@ export class MAPOAPIClient {
 
   // ======= INVENTORY ENDPOINTS =======
   async getCategories(): Promise<Category[]> {
-    return this.request<Category[]>('/categories');
+    return this.request<Category[]>('/categories/');
   }
 
   async getProductsByCategory(categoryId: UUID): Promise<Product[]> {
@@ -135,7 +147,7 @@ export class MAPOAPIClient {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products');
+    return this.request<Product[]>('/products/');
   }
 
   async getProductById(productId: UUID): Promise<Product> {
@@ -148,7 +160,7 @@ export class MAPOAPIClient {
    * @returns Respuesta del servidor con el producto creado
    */
   async createProduct(productData: ProductCreate): Promise<ProductCreateResponse> {
-    return this.request<ProductCreateResponse>('/products', {
+    return this.request<ProductCreateResponse>('/products/', {
       method: 'POST',
       body: JSON.stringify(productData),
     });
@@ -313,7 +325,7 @@ export class MAPOAPIClient {
     document_type?: string;
     document_number?: string;
   }): Promise<Person> {
-    return this.request<Person>('/customers', {
+    return this.request<Person>('/customers/', {
       method: 'POST',
       body: JSON.stringify(customerData),
     });

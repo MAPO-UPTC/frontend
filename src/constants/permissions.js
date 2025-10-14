@@ -19,7 +19,8 @@ export const Entity = {
   SUPPLIERS: "SUPPLIERS",
   CLIENTS: "CLIENTS", 
   SALES_ORDERS: "SALES_ORDERS",
-  INVENTORY_STOCK: "INVENTORY_STOCK"
+  INVENTORY_STOCK: "INVENTORY_STOCK", // Deprecated - mantener por compatibilidad
+  INVENTORY: "INVENTORY" // Nueva entidad para inventario
 };
 
 // Niveles de permisos

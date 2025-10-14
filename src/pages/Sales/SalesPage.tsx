@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CustomerSelector, ProductSearch, SalesCart } from '../../components';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import { useSales } from '../../hooks/useSales';
 import { useInventory } from '../../hooks/useInventory';
 import { useMAPOStore } from '../../store';
 import { PersonAPIResponse, ProductPresentation } from '../../types';
+import { Entity, Action } from '../../constants';
 import './SalesPage.css';
 
 export const SalesPage: React.FC = () => {
@@ -114,45 +117,76 @@ export const SalesPage: React.FC = () => {
   const summary = getCartSummary();
 
   return (
-    <div className="sales-page">
-      <div className="sales-header">
-        <h1>Punto de Venta</h1>
-        <p>Gestiona las ventas de tu tienda</p>
-      </div>
-
-      <div className="sales-content">
-        <div className="sales-main">
-          <CustomerSelector
-            selectedCustomer={selectedCustomer}
-            onCustomerSelect={handleCustomerSelect}
-          />
-
-          <ProductSearch
-            onAddProduct={handleAddProduct}
-            disabled={!selectedCustomer}
-          />
+    <PermissionGate
+      entity={Entity.SALES_ORDERS}
+      action={Action.CREATE}
+      fallback={(
+        <div className="sales-page">
+          <div className="no-permission-message" style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            background: '#fff3cd',
+            borderRadius: '8px',
+            margin: '20px'
+          }}>
+            <h3>⚠️ Sin permisos para realizar ventas</h3>
+            <p>No tienes permisos suficientes para acceder al módulo de ventas.</p>
+            <p>Contacta con un administrador si necesitas acceso.</p>
+            <Link to="/products" className="btn-primary" style={{ marginTop: '20px', display: 'inline-block', padding: '10px 20px', background: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '5px' }}>
+              Volver a Productos
+            </Link>
+          </div>
+        </div>
+      ) as any}
+      showLoading={true}
+      loadingComponent={(
+        <div className="sales-page">
+          <div className="loading" style={{ textAlign: 'center', padding: '40px' }}>
+            Verificando permisos...
+          </div>
+        </div>
+      ) as any}
+    >
+      <div className="sales-page">
+        <div className="sales-header">
+          <h1>Punto de Venta</h1>
+          <p>Gestiona las ventas de tu tienda</p>
         </div>
 
-        <div className="sales-sidebar">
-          <SalesCart
-            items={cart.items}
-            total={cart.total}
-            customer={selectedCustomer ? {
-              id: selectedCustomer.id,
-              name: selectedCustomer.full_name || `${selectedCustomer.name} ${selectedCustomer.last_name}`,
-              email: '', // No disponible en PersonAPIResponse
-              phone: '', // No disponible en PersonAPIResponse  
-              document_type: selectedCustomer.document_type,
-              document_number: selectedCustomer.document_number,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            } : null}
-            onProcessSale={handleProcessSale}
-            isProcessing={isProcessing}
-            canProcess={summary.canProcess}
-          />
+        <div className="sales-content">
+          <div className="sales-main">
+            <CustomerSelector
+              selectedCustomer={selectedCustomer}
+              onCustomerSelect={handleCustomerSelect}
+            />
+
+            <ProductSearch
+              onAddProduct={handleAddProduct}
+              disabled={!selectedCustomer}
+            />
+          </div>
+
+          <div className="sales-sidebar">
+            <SalesCart
+              items={cart.items}
+              total={cart.total}
+              customer={selectedCustomer ? {
+                id: selectedCustomer.id,
+                name: selectedCustomer.full_name || `${selectedCustomer.name} ${selectedCustomer.last_name}`,
+                email: '', // No disponible en PersonAPIResponse
+                phone: '', // No disponible en PersonAPIResponse  
+                document_type: selectedCustomer.document_type,
+                document_number: selectedCustomer.document_number,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              } : null}
+              onProcessSale={handleProcessSale}
+              isProcessing={isProcessing}
+              canProcess={summary.canProcess}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </PermissionGate>
   );
 };

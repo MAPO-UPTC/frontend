@@ -144,7 +144,7 @@ function AnimatedRoutes() {
 function App() {
   useEffect(() => {
     console.log('🚀 MAPO Frontend iniciando...');
-    console.log('🔗 Backend URL:', process.env.REACT_APP_API_BASE_URL || 'http://142.93.187.32:8000');
+    console.log('🔗 Backend URL:', process.env.REACT_APP_API_BASE_URL || 'https://142.93.187.32.nip.io');
   }, []);
 
   return (

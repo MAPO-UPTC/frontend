@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../../store';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
+import { Entity, Action } from '../../constants';
 import { Sale } from '../../types';
 import { getSaleItemsCount, calculateSaleTotal } from '../../utils/salesHelpers';
 import './SalesHistory.css';
@@ -117,14 +119,45 @@ export const SalesHistory: React.FC = () => {
   }
 
   return (
-    <div className="sales-history">
-      <div className="sales-history-header">
-        <h1>📊 Historial de Ventas</h1>
-        <p className="subtitle">Consulta y filtra todas las ventas registradas</p>
-      </div>
+    <PermissionGate
+      entity={Entity.SALES_ORDERS}
+      action={Action.READ}
+      fallback={(
+        <div className="sales-history">
+          <div className="no-permission-message" style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            background: '#fff3cd',
+            borderRadius: '8px',
+            margin: '20px'
+          }}>
+            <h3>⚠️ Sin permisos para ver historial de ventas</h3>
+            <p>No tienes permisos suficientes para acceder al historial de ventas.</p>
+            <p>Contacta con un administrador si necesitas acceso.</p>
+            <Link to="/products" className="btn-primary" style={{ marginTop: '20px', display: 'inline-block', padding: '10px 20px', background: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '5px' }}>
+              Volver a Productos
+            </Link>
+          </div>
+        </div>
+      ) as any}
+      showLoading={true}
+      loadingComponent={(
+        <div className="sales-history">
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <p>Verificando permisos...</p>
+          </div>
+        </div>
+      ) as any}
+    >
+      <div className="sales-history">
+        <div className="sales-history-header">
+          <h1>📊 Historial de Ventas</h1>
+          <p className="subtitle">Consulta y filtra todas las ventas registradas</p>
+        </div>
 
-      {/* Filtros */}
-      <div className="filters-section">
+        {/* Filtros */}
+        <div className="filters-section">
         <div className="filter-buttons">
           <button
             onClick={() => handleFilterChange('all')}
@@ -320,7 +353,8 @@ export const SalesHistory: React.FC = () => {
           )}
         </>
       )}
-    </div>
+      </div>
+    </PermissionGate>
   );
 };
 
