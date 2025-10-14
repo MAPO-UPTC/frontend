@@ -40,8 +40,9 @@ const getApiBaseUrl = (): string => {
     return process.env.REACT_APP_API_BASE_URL || 'https://142.93.187.32.nip.io';
   }
   
-  // En producción (Netlify): usar proxy relativo con prefijo /api/
-  return process.env.REACT_APP_API_BASE_URL || '/api';
+  // En producción (Netlify): SIEMPRE usar proxy relativo /api/
+  // Ignoramos REACT_APP_API_BASE_URL en producción
+  return '/api';
 };
 
 export class MAPOAPIClient {
