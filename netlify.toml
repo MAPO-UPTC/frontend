@@ -1,0 +1,13 @@
+[build]
+  # Comando de build que ignora conflictos de peer dependencies
+  command = "npm install --legacy-peer-deps && npm run build"
+  
+  # Directorio donde se generan los archivos del build
+  publish = "build"
+
+# Configuración para Single Page Application (SPA)
+# Redirige todas las rutas al index.html para que React Router funcione
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
