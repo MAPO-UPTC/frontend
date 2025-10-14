@@ -33,12 +33,24 @@ import {
   InventoryStockReport
 } from '../types';
 
+// Configuración inteligente de URL base para el cliente TypeScript
+const getApiBaseUrl = (): string => {
+  // En desarrollo local: usar variable de entorno o backend directo
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.REACT_APP_API_BASE_URL || 'http://142.93.187.32:8000';
+  }
+  
+  // En producción (Netlify): usar proxy relativo con prefijo /api/
+  return process.env.REACT_APP_API_BASE_URL || '/api';
+};
+
 export class MAPOAPIClient {
   private baseURL: string;
   private token: string | null = null;
 
-  constructor(baseURL: string = process.env.REACT_APP_API_BASE_URL || 'http://142.93.187.32:8000') {
+  constructor(baseURL: string = getApiBaseUrl()) {
     this.baseURL = baseURL;
+    console.log('🔗 MAPOAPIClient initialized with baseURL:', this.baseURL);
     // No inicializamos el token aquí, se obtiene dinámicamente en getHeaders()
   }
 
