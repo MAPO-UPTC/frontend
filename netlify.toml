@@ -9,6 +9,15 @@
 [build.environment]
   NPM_FLAGS = "--legacy-peer-deps"
 
+# Proxy para evitar Mixed Content (HTTP to HTTPS)
+# Redirige las peticiones /api/* al backend HTTP
+# IMPORTANTE: Este redirect debe ir ANTES del redirect del SPA
+[[redirects]]
+  from = "/api/*"
+  to = "http://142.93.187.32:8000/:splat"
+  status = 200
+  force = true
+
 # Configuración para Single Page Application (SPA)
 # Redirige todas las rutas al index.html para que React Router funcione
 [[redirects]]
