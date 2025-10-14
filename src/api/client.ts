@@ -21,7 +21,16 @@ import {
   BulkConversionResponse,
   BulkStockItem,
   ProductCreate,
-  ProductCreateResponse
+  ProductCreateResponse,
+  SupplierCreate,
+  InventoryLot,
+  InventoryLotCreate,
+  InventoryLotDetail,
+  InventoryLotDetailCreate,
+  InventoryLotDetailWithProduct,
+  InventoryLotDetailsResponse,
+  InventoryStockInfo,
+  InventoryStockReport
 } from '../types';
 
 export class MAPOAPIClient {
@@ -100,7 +109,7 @@ export class MAPOAPIClient {
 
   // ======= AUTH ENDPOINTS =======
   async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/api/v1/auth/login', {
+    const response = await this.request<AuthResponse>('/users/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -118,19 +127,19 @@ export class MAPOAPIClient {
 
   // ======= INVENTORY ENDPOINTS =======
   async getCategories(): Promise<Category[]> {
-    return this.request<Category[]>('/api/v1/inventory/categories');
+    return this.request<Category[]>('/categories/');
   }
 
   async getProductsByCategory(categoryId: UUID): Promise<Product[]> {
-    return this.request<Product[]>(`/api/v1/inventory/categories/${categoryId}/products`);
+    return this.request<Product[]>(`/categories/${categoryId}/products`);
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/api/v1/inventory/products');
+    return this.request<Product[]>('/products/');
   }
 
   async getProductById(productId: UUID): Promise<Product> {
-    return this.request<Product>(`/api/v1/inventory/products/${productId}`);
+    return this.request<Product>(`/products/${productId}`);
   }
 
   /**
@@ -146,11 +155,11 @@ export class MAPOAPIClient {
   }
 
   async getPresentationById(presentationId: UUID): Promise<any> {
-    return this.request<any>(`/api/v1/inventory/presentations/${presentationId}`);
+    return this.request<any>(`/presentations/${presentationId}`);
   }
 
   async getStock(presentationId: UUID): Promise<StockInfo> {
-    return this.request<StockInfo>(`/api/v1/inventory/presentations/${presentationId}/stock`);
+    return this.request<StockInfo>(`/presentations/${presentationId}/stock`);
   }
 
   async createLot(lotData: {
@@ -159,18 +168,18 @@ export class MAPOAPIClient {
     lot_code: string;
     status: string;
   }): Promise<Lot> {
-    return this.request<Lot>('/api/v1/inventory/lots', {
+    return this.request<Lot>('/lots/', {
       method: 'POST',
       body: JSON.stringify(lotData),
     });
   }
 
   async getLots(): Promise<Lot[]> {
-    return this.request<Lot[]>('/api/v1/inventory/lots');
+    return this.request<Lot[]>('/lots/');
   }
 
   async getLotById(lotId: UUID): Promise<Lot> {
-    return this.request<Lot>(`/api/v1/inventory/lots/${lotId}`);
+    return this.request<Lot>(`/lots/${lotId}`);
   }
 
   async addProductsToLot(
@@ -183,23 +192,9 @@ export class MAPOAPIClient {
       production_date?: Timestamp;
     }
   ): Promise<LotDetail> {
-    return this.request<LotDetail>(`/api/v1/inventory/lots/${lotId}/products`, {
+    return this.request<LotDetail>(`/lots/${lotId}/products`, {
       method: 'POST',
       body: JSON.stringify(productData),
-    });
-  }
-
-  async getSuppliers(): Promise<Supplier[]> {
-    return this.request<Supplier[]>('/api/v1/inventory/suppliers');
-  }
-
-  async createSupplier(supplierData: {
-    person_id: UUID;
-    supplier_code: string;
-  }): Promise<Supplier> {
-    return this.request<Supplier>('/api/v1/inventory/suppliers', {
-      method: 'POST',
-      body: JSON.stringify(supplierData),
     });
   }
 
@@ -279,7 +274,7 @@ export class MAPOAPIClient {
 
   // ======= CUSTOMERS ENDPOINTS =======
   async getCustomers(): Promise<Person[]> {
-    return this.request<Person[]>('/api/v1/customers');
+    return this.request<Person[]>('/customers/');
   }
 
   // New endpoint for persons
@@ -292,7 +287,7 @@ export class MAPOAPIClient {
       document_number?: string;
     }
 
-    const response = await this.request<PersonAPIResponse[]>('/api/v1/persons/');
+    const response = await this.request<PersonAPIResponse[]>('/persons/');
     
     // Transform API response to Person interface format
     return response.map(apiPerson => ({
@@ -402,6 +397,99 @@ export class MAPOAPIClient {
     
     // Extraer solo el array de lotes del objeto de respuesta
     return response.data;
+  }
+
+  // ======= MÉTODOS DE GESTIÓN DE INVENTARIO (LOTES) =======
+
+  /**
+   * Gestión de Proveedores (Suppliers)
+   */
+  
+  // Crear proveedor
+  async createSupplier(supplierData: SupplierCreate): Promise<Supplier> {
+    return this.request<Supplier>('/inventory/suppliers/', {
+      method: 'POST',
+      body: JSON.stringify(supplierData),
+    });
+  }
+
+  // Listar proveedores
+  async getSuppliers(skip: number = 0, limit: number = 100): Promise<Supplier[]> {
+    return this.request<Supplier[]>(`/inventory/suppliers/?skip=${skip}&limit=${limit}`);
+  }
+
+  // Obtener proveedor por ID
+  async getSupplierById(supplierId: UUID): Promise<Supplier> {
+    return this.request<Supplier>(`/inventory/suppliers/${supplierId}`);
+  }
+
+  /**
+   * Gestión de Lotes (Inventory Lots)
+   */
+  
+  // Crear lote
+  async createInventoryLot(lotData: InventoryLotCreate): Promise<InventoryLot> {
+    return this.request<InventoryLot>('/inventory/lots/', {
+      method: 'POST',
+      body: JSON.stringify(lotData),
+    });
+  }
+
+  // Listar lotes
+  async getInventoryLots(skip: number = 0, limit: number = 100): Promise<InventoryLot[]> {
+    return this.request<InventoryLot[]>(`/inventory/lots/?skip=${skip}&limit=${limit}`);
+  }
+
+  // Obtener lote por ID
+  async getInventoryLotById(lotId: UUID): Promise<InventoryLot> {
+    return this.request<InventoryLot>(`/inventory/lots/${lotId}`);
+  }
+
+  // Obtener detalles de un lote
+  async getInventoryLotDetails(lotId: UUID): Promise<InventoryLotDetail[]> {
+    return this.request<InventoryLotDetail[]>(`/inventory/lots/${lotId}/details/`);
+  }
+
+  /**
+   * Gestión de Detalles de Lote (Lot Details)
+   */
+  
+  // Agregar producto a un lote
+  async addProductToInventoryLot(
+    lotId: UUID,
+    detailData: InventoryLotDetailCreate
+  ): Promise<InventoryLotDetail> {
+    return this.request<InventoryLotDetail>(`/inventory/lots/${lotId}/details/`, {
+      method: 'POST',
+      body: JSON.stringify(detailData),
+    });
+  }
+
+  /**
+   * Consultas de Stock
+   */
+  
+  // Consultar stock por presentación
+  async getInventoryStock(presentationId: UUID): Promise<InventoryStockInfo> {
+    return this.request<InventoryStockInfo>(`/inventory/stock/${presentationId}`);
+  }
+
+  // Obtener lotes disponibles por presentación (FIFO)
+  async getInventoryLotDetailsByPresentation(
+    presentationId: UUID,
+    availableOnly: boolean = true
+  ): Promise<InventoryLotDetailsResponse> {
+    const params = new URLSearchParams({
+      available_only: availableOnly.toString()
+    });
+    return this.request<InventoryLotDetailsResponse>(
+      `/inventory/presentations/${presentationId}/lot-details?${params.toString()}`
+    );
+  }
+
+  // Reporte general de stock
+  async getInventoryStockReport(): Promise<InventoryStockReport> {
+    return this.request<InventoryStockReport>('/inventory/reports/stock');
   }
 
   // Test connection

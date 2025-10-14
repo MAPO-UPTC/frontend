@@ -443,6 +443,152 @@ export interface ValidationError {
   message: string;
 }
 
+// ======= SISTEMA DE LOTES E INVENTARIO =======
+
+/**
+ * Estados de un lote de inventario
+ */
+export enum InventoryLotStatus {
+  RECEIVED = "received",
+  PENDING = "pending",
+  COMPLETED = "completed"
+}
+
+export const InventoryLotStatusLabels: Record<InventoryLotStatus, string> = {
+  [InventoryLotStatus.RECEIVED]: "Recibido",
+  [InventoryLotStatus.PENDING]: "Pendiente",
+  [InventoryLotStatus.COMPLETED]: "Completado"
+};
+
+/**
+ * Interface para Proveedor (Supplier)
+ */
+export interface Supplier {
+  id: UUID;
+  name: string;
+  address?: string | null;
+  phone_number?: string | null;
+  email?: string | null;
+  contact_person?: string | null;
+}
+
+/**
+ * Interface para crear un proveedor
+ */
+export interface SupplierCreate {
+  name: string;
+  address?: string | null;
+  phone_number?: string | null;
+  email?: string | null;
+  contact_person?: string | null;
+}
+
+/**
+ * Interface para Lote de Inventario (InventoryLot)
+ */
+export interface InventoryLot {
+  id: UUID;
+  lot_code: string;
+  supplier_id: UUID;
+  received_date: Timestamp;
+  expiry_date?: Timestamp | null;
+  status: InventoryLotStatus;
+  total_cost: number;
+  notes?: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+/**
+ * Interface para crear un lote de inventario
+ */
+export interface InventoryLotCreate {
+  lot_code: string;
+  supplier_id: UUID;
+  received_date: Timestamp;
+  expiry_date?: Timestamp | null;
+  status: InventoryLotStatus;
+  total_cost: number;
+  notes?: string | null;
+}
+
+/**
+ * Interface para Detalle de Lote de Inventario (InventoryLotDetail)
+ */
+export interface InventoryLotDetail {
+  id: UUID;
+  lot_id: UUID;
+  presentation_id: UUID;
+  quantity_received: number;
+  quantity_available: number;
+  unit_cost: number;
+  batch_number?: string | null;
+}
+
+/**
+ * Interface para crear un detalle de lote de inventario
+ */
+export interface InventoryLotDetailCreate {
+  presentation_id: UUID;
+  quantity_received: number;
+  unit_cost: number;
+  batch_number?: string | null;
+}
+
+/**
+ * Interface extendida para InventoryLotDetail con información del producto (para visualización)
+ */
+export interface InventoryLotDetailWithProduct extends InventoryLotDetail {
+  lot_code?: string;
+  received_date?: Timestamp;
+  expiry_date?: Timestamp | null;
+  lot_status?: InventoryLotStatus;
+  product_id?: UUID;
+  product_name?: string;
+  presentation_name?: string;
+  presentation_unit?: string;
+}
+
+/**
+ * Respuesta de la API para lotes disponibles por presentación (FIFO)
+ */
+export interface InventoryLotDetailsResponse {
+  success: boolean;
+  data: InventoryLotDetailWithProduct[];
+  count: number;
+  metadata: {
+    presentation_id: UUID;
+    total_available_quantity: number;
+    oldest_lot_date?: Timestamp;
+    newest_lot_date?: Timestamp;
+  };
+}
+
+/**
+ * Interface para consulta de stock de inventario
+ */
+export interface InventoryStockInfo {
+  presentation_id: UUID;
+  available_stock: number;
+  checked_at: Timestamp;
+}
+
+/**
+ * Interface para reporte de stock de inventario
+ */
+export interface InventoryStockReportItem {
+  presentation_id: UUID;
+  presentation_name: string;
+  stock_available: number;
+  last_updated: Timestamp;
+}
+
+export interface InventoryStockReport {
+  report: InventoryStockReportItem[];
+  generated_at: Timestamp;
+  generated_by?: string;
+}
+
 // ======= TIPOS DE CONFIGURACIÓN =======
 export interface AppConfig {
   apiBaseUrl: string;

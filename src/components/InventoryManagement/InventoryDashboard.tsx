@@ -4,6 +4,7 @@ import { Button } from '../UI';
 import { Product, ProductPresentation, UUID } from '../../types';
 import BulkConversionModal from '../BulkConversionModal';
 import CreateProductForm from '../CreateProductForm/CreateProductForm';
+import InventoryReception from '../InventoryReception/InventoryReception';
 import './InventoryDashboard.css';
 
 interface InventoryDashboardProps {
@@ -27,6 +28,9 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   
   // Estado para el modal de creación de producto
   const [showCreateProductModal, setShowCreateProductModal] = useState(false);
+  
+  // Estado para el modal de recepción de mercancía
+  const [showReceptionModal, setShowReceptionModal] = useState(false);
   
   // Estado para el modal de conversión a granel
   const [bulkConversionModal, setBulkConversionModal] = useState<{
@@ -126,6 +130,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     setShowCreateProductModal(false);
   };
 
+  const handleReceptionSuccess = () => {
+    // Recargar productos después de recibir mercancía
+    if (selectedCategory) {
+      loadProductsForCategory(selectedCategory);
+    } else {
+      loadProducts();
+    }
+    setShowReceptionModal(false);
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -146,8 +160,8 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           <Button variant="primary" onClick={() => setShowCreateProductModal(true)}>
             + Nuevo Producto
           </Button>
-          <Button variant="secondary">
-            Recepción de Mercancía
+          <Button variant="secondary" onClick={() => setShowReceptionModal(true)}>
+            📦 Recepción de Mercancía
           </Button>
         </div>
       </div>
@@ -309,6 +323,18 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             <CreateProductForm
               onSuccess={handleCreateProductSuccess}
               onCancel={() => setShowCreateProductModal(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Modal de recepción de mercancía */}
+      {showReceptionModal && (
+        <div className="modal-overlay" onClick={() => setShowReceptionModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <InventoryReception
+              onSuccess={handleReceptionSuccess}
+              onCancel={() => setShowReceptionModal(false)}
             />
           </div>
         </div>
