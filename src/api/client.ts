@@ -127,7 +127,7 @@ export class MAPOAPIClient {
 
   // ======= INVENTORY ENDPOINTS =======
   async getCategories(): Promise<Category[]> {
-    return this.request<Category[]>('/categories/');
+    return this.request<Category[]>('/categories');
   }
 
   async getProductsByCategory(categoryId: UUID): Promise<Product[]> {
@@ -135,7 +135,7 @@ export class MAPOAPIClient {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products/');
+    return this.request<Product[]>('/products');
   }
 
   async getProductById(productId: UUID): Promise<Product> {
@@ -148,7 +148,7 @@ export class MAPOAPIClient {
    * @returns Respuesta del servidor con el producto creado
    */
   async createProduct(productData: ProductCreate): Promise<ProductCreateResponse> {
-    return this.request<ProductCreateResponse>('/products/', {
+    return this.request<ProductCreateResponse>('/products', {
       method: 'POST',
       body: JSON.stringify(productData),
     });

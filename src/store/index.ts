@@ -591,33 +591,121 @@ export const useMAPOStore = create<MAPOStore>()(
       },
 
       // ======= INVENTORY ACTIONS =======
-      loadCategories: async () => {},
+      loadCategories: async () => {
+        try {
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              loading: true
+            }
+          }));
 
-      loadProductsByCategory: async (categoryId) => {},
+          // Llamar a la API para obtener todas las categorías
+          const categories = await apiClient.getCategories();
+          
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              categories: categories,
+              loading: false
+            }
+          }));
+          
+          console.log('🔄 loadCategories - Categorías cargadas desde API:', {
+            totalCategories: categories.length,
+            categories: categories.map(c => ({ id: c.id, name: c.name }))
+          });
+        } catch (error) {
+          console.warn('⚠️ No se pudieron cargar categorías desde la API, usando datos locales');
+          console.error('Error loading categories:', error);
+          // Mantener las categorías que ya están en el estado (mock data)
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              loading: false
+            }
+          }));
+        }
+      },
+
+      loadProductsByCategory: async (categoryId) => {
+        try {
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              loading: true
+            }
+          }));
+
+          // Llamar a la API para obtener productos de una categoría
+          const products = await apiClient.getProductsByCategory(categoryId);
+          
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              products: products,
+              currentCategory: categoryId,
+              loading: false
+            }
+          }));
+          
+          console.log('🔄 loadProductsByCategory - Productos cargados:', {
+            categoryId,
+            totalProducts: products.length
+          });
+        } catch (error) {
+          console.warn('⚠️ No se pudieron cargar productos por categoría desde la API');
+          console.error('Error loading products by category:', error);
+          // Mantener los productos que ya están en el estado
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              loading: false
+            }
+          }));
+        }
+      },
 
       loadAllProducts: async () => {
-        // Por ahora usa los datos mock del estado inicial
-        // En el futuro se reemplazará con una llamada real a la API
-        set((state) => ({
-          inventory: {
-            ...state.inventory,
-            loading: false
-          }
-        }));
-        
-        // DEBUG: Mostrar los productos cargados
-        const currentState = get();
-        console.log('🔄 loadAllProducts - Productos cargados:', {
-          totalProducts: currentState.inventory.products.length,
-          products: currentState.inventory.products.map(p => ({
-            name: p.name,
-            presentations: p.presentations.map(pres => ({
-              name: pres.presentation_name,
-              stock_available: pres.stock_available,
-              bulk_stock_available: pres.bulk_stock_available
+        try {
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              loading: true
+            }
+          }));
+
+          // Llamar a la API para obtener todos los productos
+          const products = await apiClient.getAllProducts();
+          
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              products: products,
+              loading: false
+            }
+          }));
+          
+          // DEBUG: Mostrar los productos cargados
+          console.log('🔄 loadAllProducts - Productos cargados desde API:', {
+            totalProducts: products.length,
+            products: products.map(p => ({
+              id: p.id,
+              name: p.name,
+              presentations: p.presentations?.length || 0
             }))
-          }))
-        });
+          });
+        } catch (error) {
+          console.warn('⚠️ No se pudieron cargar productos desde la API, usando datos locales');
+          console.error('Error loading products:', error);
+          // Mantener los productos que ya están en el estado (mock data)
+          set((state) => ({
+            inventory: {
+              ...state.inventory,
+              loading: false
+            }
+          }));
+        }
       },
 
       checkStock: async (presentationId) => {
