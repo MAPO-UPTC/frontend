@@ -68,7 +68,7 @@ export const Navigation: React.FC = () => {
     <nav className="navigation">
       <div className="nav-header">
         <div className="nav-logo">
-          <img src="/logo192.png" alt="MAPO" className="logo-image" />
+          <img src="/mapo-logo.png" alt="MAPO" className="logo-image" />
           <span className="logo-text">MAPO</span>
         </div>
         
