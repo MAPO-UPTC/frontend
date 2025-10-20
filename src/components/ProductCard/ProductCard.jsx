@@ -7,7 +7,6 @@ export default function ProductCard({ product, onAddToCart }) {
   const [selectedPresentation, setSelectedPresentation] = useState(
     product.presentations?.find(p => p.active) || product.presentations?.[0] || null
   );
-  const [quantity, setQuantity] = useState(1);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', {
@@ -21,32 +20,11 @@ export default function ProductCard({ product, onAddToCart }) {
     setImageError(true);
   };
 
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    if (!selectedPresentation || !hasStock(selectedPresentation)) return;
-    
-    const cartItem = {
-      presentation: selectedPresentation,
-      quantity: quantity,
-      unit_price: selectedPresentation.price,
-      line_total: selectedPresentation.price * quantity,
-      max_available: getMaxAvailableStock(selectedPresentation)
-    };
-    
-    onAddToCart?.(cartItem);
-    console.log("Agregando al carrito:", cartItem);
-  };
 
   const handlePresentationChange = (presentation) => {
     setSelectedPresentation(presentation);
-    setQuantity(1); // Reset quantity when changing presentation
   };
 
-  const handleQuantityChange = (e) => {
-    const newQuantity = parseInt(e.target.value);
-    const maxAvailable = getMaxAvailableStock(selectedPresentation);
-    setQuantity(Math.min(Math.max(1, newQuantity), maxAvailable));
-  };
 
   // Helper function to check if a presentation is bulk/granel
   const isBulkPresentation = (presentation) => {
@@ -56,11 +34,6 @@ export default function ProductCard({ product, onAddToCart }) {
     return nameIndicatesBulk || hasBulkStock;
   };
 
-  // Helper function to check if stock is available (either regular or bulk)
-  const hasStock = (presentation) => {
-    if (!presentation) return false;
-    return (presentation.stock_available || 0) > 0 || (presentation.bulk_stock_available || 0) > 0;
-  };
 
   // Helper function to get max available stock
   const getMaxAvailableStock = (presentation) => {
@@ -107,7 +80,7 @@ export default function ProductCard({ product, onAddToCart }) {
 
   const stockStatus = selectedPresentation ? getStockStatus(selectedPresentation) : { text: "Sin stock", class: "out-of-stock" };
   const availablePresentations = product.presentations?.filter(p => p.active) || [];
-  const isOutOfStock = !selectedPresentation || !hasStock(selectedPresentation);
+    // Pantalla informativa, no se requiere cantidad ni agregar al carrito
 
   return (
     <div 
@@ -147,31 +120,25 @@ export default function ProductCard({ product, onAddToCart }) {
           <p className="product-description">{product.description}</p>
         )}
         
-        {/* Selector de presentaciones */}
+        {/* Selector de presentaciones como dropdown para tamaño uniforme */}
         {availablePresentations.length > 0 && (
           <div className="presentations-section">
-            <label className="presentations-label">Presentación:</label>
-            <div className="presentations-grid">
+            <label className="presentations-label" htmlFor={`presentation-select-${product.id}`}>Presentación:</label>
+            <select
+              id={`presentation-select-${product.id}`}
+              className="presentation-dropdown"
+              value={selectedPresentation?.id || ''}
+              onChange={e => {
+                const pres = availablePresentations.find(p => p.id === e.target.value);
+                if (pres) handlePresentationChange(pres);
+              }}
+            >
               {availablePresentations.map((presentation) => (
-                <button
-                  key={presentation.id}
-                  className={`presentation-option ${selectedPresentation?.id === presentation.id ? 'selected' : ''} ${!hasStock(presentation) ? 'disabled' : ''}`}
-                  onClick={() => handlePresentationChange(presentation)}
-                  disabled={!hasStock(presentation)}
-                >
-                  <div className="presentation-name">{presentation.presentation_name}
-                    {isBulkPresentation(presentation) && <span className="bulk-indicator"> 📦 A granel</span>}
-                  </div>
-                  <div className="presentation-details">
-                    {presentation.quantity} {presentation.unit}
-                  </div>
-                  <div className="presentation-price">{formatPrice(presentation.price)}</div>
-                  {!hasStock(presentation) && (
-                    <div className="presentation-stock-badge">Agotado</div>
-                  )}
-                </button>
+                <option key={presentation.id} value={presentation.id}>
+                  {presentation.presentation_name} - {presentation.quantity} {presentation.unit} - {formatPrice(presentation.price)}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
         )}
         
@@ -185,29 +152,7 @@ export default function ProductCard({ product, onAddToCart }) {
               </div>
             </div>
             
-            <div className="quantity-section">
-              <label htmlFor={`quantity-${product.id}`} className="quantity-label">
-                Cantidad:
-              </label>
-              <input
-                id={`quantity-${product.id}`}
-                type="number"
-                min="1"
-                max={getMaxAvailableStock(selectedPresentation)}
-                value={quantity}
-                onChange={handleQuantityChange}
-                className="quantity-input"
-                disabled={isOutOfStock}
-              />
-            </div>
-            
-            <button
-              className={`add-to-cart-btn ${isOutOfStock ? 'disabled' : ''}`}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-            >
-              {isOutOfStock ? 'Agotado' : `Agregar (${formatPrice(selectedPresentation.price * quantity)})`}
-            </button>
+            {/* Sección de cantidad y botón de agregar eliminados para modo informativo */}
           </div>
         )}
         

@@ -5,7 +5,9 @@ import { Product, ProductPresentation, UUID } from '../../types';
 import BulkConversionModal from '../BulkConversionModal';
 import CreateProductForm from '../CreateProductForm/CreateProductForm';
 import InventoryReception from '../InventoryReception/InventoryReception';
+import CreateCategoryModal from './CreateCategoryModal';
 import './InventoryDashboard.css';
+import CreateSupplierModal from './CreateSupplierModal';
 
 interface InventoryDashboardProps {
   onProductSelect?: (product: Product) => void;
@@ -25,9 +27,13 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateSupplierModal, setShowCreateSupplierModal] = useState(false);
+
   
   // Estado para el modal de creación de producto
   const [showCreateProductModal, setShowCreateProductModal] = useState(false);
+  // Estado para el modal de creación de categoría
+  const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
   
   // Estado para el modal de recepción de mercancía
   const [showReceptionModal, setShowReceptionModal] = useState(false);
@@ -163,8 +169,32 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           <Button variant="secondary" onClick={() => setShowReceptionModal(true)}>
             📦 Recepción de Mercancía
           </Button>
+          <Button variant="outline" onClick={() => setShowCreateCategoryModal(true)}>
+            + Nueva Categoría
+          </Button>
+          <Button variant="outline" onClick={() => setShowCreateSupplierModal(true)}>
+            + Nuevo Proveedor
+          </Button>
         </div>
+
+      {/* Modal de creación de proveedor */}
+      {showCreateSupplierModal && (
+        <CreateSupplierModal
+          onSuccess={() => setShowCreateSupplierModal(false)}
+          onCancel={() => setShowCreateSupplierModal(false)}
+        />
+      )}
       </div>
+      {/* Modal de creación de categoría */}
+      {showCreateCategoryModal && (
+        <CreateCategoryModal
+          onSuccess={() => {
+            loadCategoriesData();
+            setShowCreateCategoryModal(false);
+          }}
+          onCancel={() => setShowCreateCategoryModal(false)}
+        />
+      )}
 
       <div className="inventory-stats">
         <div className="stat-card">
@@ -246,27 +276,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                 
                 <div className="presentations-list">
                   {product.presentations.map(presentation => (
-                    <div key={presentation.id} className="presentation-item">
+                    <div key={presentation.id} className="presentation-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                       <div className="presentation-info-row">
                         <span className="presentation-name">
                           {presentation.presentation_name}
                         </span>
-                        <div className="stock-info">
-                          <span className={`stock-badge ${
-                            (presentation.stock_available || 0) === 0 ? 'out-of-stock' :
-                            (presentation.stock_available || 0) < 10 ? 'low-stock' : 'in-stock'
-                          }`}>
-                            Stock: {presentation.stock_available || 0}
-                          </span>
-                          {presentation.bulk_stock_available > 0 && (
-                            <span className="stock-badge bulk-badge">
-                              Granel: {presentation.bulk_stock_available}{presentation.unit}
-                            </span>
-                          )}
-                          <span className="price">
-                            ${presentation.price?.toLocaleString('es-CO')}
-                          </span>
-                        </div>
+                      </div>
+                      <div className="presentation-stock-text" style={{ fontSize: '13px', color: '#555', marginLeft: 0, marginTop: '2px', textAlign: 'left', width: '100%' }}>
+                        {presentation.presentation_name.toLowerCase().includes('granel')
+                          ? `Stock: ${presentation.bulk_stock_available || 0}${presentation.unit || ''}`
+                          : `Stock: ${presentation.stock_available || 0}`}
                       </div>
                       <div className="presentation-actions">
                         {(presentation.stock_available || 0) > 0 && (

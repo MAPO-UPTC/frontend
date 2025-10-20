@@ -2,21 +2,40 @@ import ProductCard from "../../components/ProductCard/ProductCard";
 import ProductFilters from "../../components/ProductFilters/ProductFilters";
 import PermissionGate from "../../components/PermissionGate/PermissionGate";
 import { useProducts, useCategories, useProductFilters } from "../../hooks";
+import { useState, useEffect } from "react";
 import { Entity, Action } from "../../constants";
 import "./Products.css";
 
 export default function Products() {
   // Hooks personalizados para manejo de estado escalable
-  const { products, loading, error } = useProducts();
+  // Estado de filtros
+  const [filters, setFilters] = useState({
+    category: "",
+    search: ""
+  });
   const { categories } = useCategories();
-  
-  // Hook personalizado para filtros
-  const { 
-    filters, 
-    filteredProducts, 
-    filterStats,
-    actions: { updateFilter, clearAllFilters }
-  } = useProductFilters(products);
+  // useProducts hook con recarga por categoría
+  const { products, loading, error, actions: { fetchProducts } } = useProducts();
+  // Hook de filtros frontend (solo búsqueda)
+  const { filterStats } = useProductFilters(products, filters);
+
+  // Cuando cambia la categoría, recargar productos desde backend
+  useEffect(() => {
+    // Solo filtrar por categoría en el backend
+    const backendFilters = {};
+    if (filters.category) backendFilters.category = filters.category;
+    fetchProducts(backendFilters);
+  }, [filters.category, fetchProducts]);
+
+  // Handlers para filtros
+  // Solo actualiza el filtro de búsqueda al presionar Enter
+  const updateFilter = (name, value, event) => {
+    if (name === "search" && event && event.key !== "Enter") return;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+  const clearAllFilters = () => {
+    setFilters({ category: "", search: "" });
+  };
 
   // Función para manejar agregar al carrito
   const handleAddToCart = (cartItem) => {
@@ -31,49 +50,12 @@ export default function Products() {
     }).format(cartItem.line_total)}`);
   };
 
-  if (loading) {
-    return (
-      <div className="products-container">
-        <div className="loading">Cargando productos...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="products-container">
-        <div className="error">{error}</div>
-      </div>
-    );
-  }
-
   return (
     <div className="products-container">
       <div className="products-header">
         <h1 className="products-title">Nuestra Tienda</h1>
         <p className="products-subtitle">Encuentra todo lo que tu mascota necesita</p>
-        
         {/* Debug Info - Solo visible para usuarios autenticados (comentar en producción) */}
-        {/* {user && (
-          <div style={{ 
-            background: '#f0f0f0', 
-            padding: '10px', 
-            margin: '10px 0', 
-            borderRadius: '5px',
-            fontSize: '12px',
-            color: '#666'
-          }}>
-            <strong>Debug Info:</strong><br/>
-            Usuario: {user.email}<br/>
-            Rol activo: {activeRole || 'Todos los roles'}<br/>
-            Roles disponibles: {availableRoles.join(', ')}<br/>
-            Permisos en PRODUCTS:<br/>
-            - Crear: {hasPermission(Entity.PRODUCTS, Action.CREATE) ? '✅ SÍ' : '❌ NO'}<br/>
-            - Leer: {hasPermission(Entity.PRODUCTS, Action.READ) ? '✅ SÍ' : '❌ NO'}<br/>
-            - Actualizar: {hasPermission(Entity.PRODUCTS, Action.UPDATE) ? '✅ SÍ' : '❌ NO'}<br/>
-            - Eliminar: {hasPermission(Entity.PRODUCTS, Action.DELETE) ? '✅ SÍ' : '❌ NO'}
-          </div>
-        )} */}
       </div>
 
       <PermissionGate
@@ -98,7 +80,7 @@ export default function Products() {
           filters={filters}
           categories={categories}
           filterStats={filterStats}
-          onFilterChange={updateFilter}
+          onFilterChange={(name, value, event) => updateFilter(name, value, event)}
           onClearFilters={clearAllFilters}
         />
       </PermissionGate>
@@ -110,34 +92,29 @@ export default function Products() {
         showLoading={false}
       >
         <div className="products-grid">
+          {/* Filtrar productos por nombre solo al presionar Enter */}
           {(() => {
-            // Validación exhaustiva para evitar el error n.map is not a function
-            console.log('[Products] filteredProducts type:', typeof filteredProducts);
-            console.log('[Products] filteredProducts isArray:', Array.isArray(filteredProducts));
-            console.log('[Products] filteredProducts value:', filteredProducts);
-            
-            if (!Array.isArray(filteredProducts)) {
-              console.error('[Products] ERROR: filteredProducts no es un array:', filteredProducts);
-              return (
-                <div className="error">
-                  Error: Los datos de productos no tienen el formato correcto.
-                </div>
+            let productsToShow = products;
+            if (filters.search) {
+              productsToShow = products.filter(product =>
+                product.name?.toLowerCase().includes(filters.search.toLowerCase())
               );
             }
-            
-            return filteredProducts.length > 0 ? (
-              filteredProducts.map(product => (
+            if (!Array.isArray(productsToShow)) {
+              console.error('[Products] ERROR: productsToShow no es un array:', productsToShow);
+              return <div className="error">Error: Los datos de productos no tienen el formato correcto.</div>;
+            }
+            if (productsToShow.length > 0) {
+              return productsToShow.map(product => (
                 <ProductCard 
                   key={product.id} 
                   product={product} 
                   onAddToCart={handleAddToCart}
                 />
-              ))
-            ) : (
-              <div className="no-products">
-                No se encontraron productos que coincidan con los filtros.
-              </div>
-            );
+              ));
+            } else {
+              return <div className="no-products">No se encontraron productos que coincidan con los filtros.</div>;
+            }
           })()}
         </div>
       </PermissionGate>

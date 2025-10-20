@@ -21,6 +21,9 @@ export default function ProductFilters({
           className="search-input"
           value={filters.search}
           onChange={(e) => onFilterChange("search", e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onFilterChange("search", e.target.value, e);
+          }}
         />
       </div>
 
@@ -32,7 +35,7 @@ export default function ProductFilters({
         >
           <option value="">Todas las categorías</option>
           {Array.isArray(categories) ? categories.map(category => (
-            <option key={category.id} value={category.name}>
+            <option key={category.id} value={category.id}>
               {category.name}
             </option>
           )) : (
@@ -41,18 +44,7 @@ export default function ProductFilters({
         </select>
       </div>
 
-      <div className="filter-group">
-        <select
-          className="filter-select"
-          value={filters.priceRange}
-          onChange={(e) => onFilterChange("priceRange", e.target.value)}
-        >
-          <option value="">Todos los precios</option>
-          <option value="0-20000">$0 - $20,000</option>
-          <option value="20001-40000">$20,001 - $40,000</option>
-          <option value="40001+">$40,001+</option>
-        </select>
-      </div>
+      {/* Filtro de precio eliminado */}
 
       {filterStats.hasActiveFilters && (
         <div className="filter-group">
