@@ -1,11 +1,13 @@
 import { useCallback } from 'react';
 import { useMAPOStore } from '../store';
+import { PeriodSalesReportRequest, ReportPeriod } from '../types';
 
 export const useReports = () => {
   const {
     sales,
     loadBestSellingProducts,
     loadDailySummary,
+    loadPeriodSalesReport,
     addNotification
   } = useMAPOStore();
 
@@ -32,6 +34,27 @@ export const useReports = () => {
       });
     }
   }, [loadDailySummary, addNotification]);
+
+  const loadPeriodReport = useCallback(async (
+    period: ReportPeriod,
+    referenceDate: string,
+    topLimit: number = 10
+  ) => {
+    try {
+      const request: PeriodSalesReportRequest = {
+        period,
+        reference_date: referenceDate,
+        top_limit: topLimit,
+      };
+      await loadPeriodSalesReport(request);
+    } catch (error) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: `No se pudo cargar el reporte ${period === 'daily' ? 'diario' : period === 'weekly' ? 'semanal' : 'mensual'}`,
+      });
+    }
+  }, [loadPeriodSalesReport, addNotification]);
 
   const getTodayReport = useCallback(async () => {
     const today = new Date().toISOString().split('T')[0];
@@ -105,11 +128,13 @@ export const useReports = () => {
     // State
     bestSelling: sales.reports.bestSelling,
     dailySummary: sales.reports.dailySummary,
+    periodReport: sales.reports.periodReport,
     loading: sales.loading,
     
     // Actions
     loadBestSellers,
     loadDailyReport,
+    loadPeriodReport,
     getTodayReport,
     
     // Utilities
