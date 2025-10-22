@@ -10,6 +10,8 @@ import {
   SalesReportFilter,
   BestSellingProductsReport,
   DailySalesSummary,
+  PeriodSalesReportRequest,
+  PeriodSalesReportResponse,
   UUID,
   Timestamp,
   APIError,
@@ -279,6 +281,18 @@ export class MAPOAPIClient {
 
   async getDailySummary(date: Timestamp): Promise<DailySalesSummary> {
     return this.request<DailySalesSummary>(`/sales/reports/daily/${date}`);
+  }
+
+  /**
+   * Obtener reporte de ventas por periodo (diario, semanal, mensual)
+   * @param request - Parámetros del reporte
+   * @returns Reporte completo con métricas y tops
+   */
+  async getPeriodSalesReport(request: import('../types').PeriodSalesReportRequest): Promise<import('../types').PeriodSalesReportResponse> {
+    return this.request<import('../types').PeriodSalesReportResponse>('/reports/sales', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
   }
 
   async getSalesReportByDateRange(startDate: string, endDate: string): Promise<any> {
