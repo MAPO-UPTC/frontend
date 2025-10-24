@@ -49,7 +49,43 @@ export interface Role {
   description?: string;
 }
 
-// ======= TIPOS DE CLIENTES =======
+// ======= TIPOS DE GESTIÓN DE ROLES Y USUARIOS =======
+export type RoleName = 'USER' | 'ADMIN' | 'SUPERADMIN';
+
+export interface UserWithRoles {
+  user_id: UUID;
+  email: string;
+  name: string;
+  last_name: string;
+  document_type?: string;
+  document_number?: string;
+  roles: RoleName[];
+}
+
+export interface UsersListResponse {
+  users: UserWithRoles[];
+  total: number;
+}
+
+export interface AssignRoleRequest {
+  user_id: UUID;
+  role: RoleName;
+}
+
+export interface RemoveRoleRequest {
+  user_id: UUID;
+  role: RoleName;
+}
+
+export interface UpdateRolesRequest {
+  roles: RoleName[];
+}
+
+export interface RoleManagementResponse {
+  message: string;
+  user: UserWithRoles;
+}
+
 export interface Customer {
   id: UUID;
   name: string;

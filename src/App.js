@@ -15,6 +15,7 @@ import { SalesHistory } from "./pages/SalesHistory/SalesHistory";
 import SaleDetails from "./pages/SaleDetails/SaleDetails";
 import { Inventory } from "./pages/Inventory/Inventory";
 import { Reports } from "./pages/Reports/Reports";
+import { UserManagementPage } from "./pages/UserManagementPage/UserManagementPage";
 
 import { useRef, useEffect } from "react";
 import "./App.css";
@@ -127,6 +128,14 @@ function AnimatedRoutes() {
                 element={
                   <PrivateRoute>
                     <PermissionsDemo />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <PrivateRoute>
+                    <UserManagementPage />
                   </PrivateRoute>
                 }
               />
