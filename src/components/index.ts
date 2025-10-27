@@ -6,6 +6,9 @@ export * from './ProductSearch';
 // Inventory Components
 export * from './InventoryManagement';
 
+// User Management Components
+export * from './UserManagement';
+
 // UI Components
 export * from './UI';
 

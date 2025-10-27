@@ -49,7 +49,43 @@ export interface Role {
   description?: string;
 }
 
-// ======= TIPOS DE CLIENTES =======
+// ======= TIPOS DE GESTIÓN DE ROLES Y USUARIOS =======
+export type RoleName = 'USER' | 'ADMIN' | 'SUPERADMIN';
+
+export interface UserWithRoles {
+  user_id: UUID;
+  email: string;
+  name: string;
+  last_name: string;
+  document_type?: string;
+  document_number?: string;
+  roles: RoleName[];
+}
+
+export interface UsersListResponse {
+  users: UserWithRoles[];
+  total: number;
+}
+
+export interface AssignRoleRequest {
+  user_id: UUID;
+  role: RoleName;
+}
+
+export interface RemoveRoleRequest {
+  user_id: UUID;
+  role: RoleName;
+}
+
+export interface UpdateRolesRequest {
+  roles: RoleName[];
+}
+
+export interface RoleManagementResponse {
+  message: string;
+  user: UserWithRoles;
+}
+
 export interface Customer {
   id: UUID;
   name: string;
@@ -230,6 +266,46 @@ export interface DailySalesSummary {
   average_sale_value: number;
 }
 
+// ======= TIPOS DE REPORTES PERIÓDICOS =======
+export type ReportPeriod = 'daily' | 'weekly' | 'monthly';
+
+export interface PeriodSalesReportRequest {
+  period: ReportPeriod;
+  reference_date: string; // Formato: YYYY-MM-DD
+  top_limit?: number; // Default: 10
+}
+
+export interface TopProductInReport {
+  presentation_id: UUID;
+  product_name: string;
+  presentation_name: string;
+  quantity_sold: number;
+  total_revenue: number;
+}
+
+export interface TopCustomerInReport {
+  customer_id: UUID;
+  customer_name: string;
+  customer_document?: string;
+  total_purchases: number;
+  total_spent: number;
+}
+
+export interface PeriodSalesReportResponse {
+  period: ReportPeriod;
+  start_date: Timestamp;
+  end_date: Timestamp;
+  // Campos planos (no anidados en metrics)
+  total_sales: number;
+  total_revenue: number;
+  estimated_profit: number;
+  profit_margin: number; // Porcentaje
+  average_sale_value: number;
+  total_items_sold: number;
+  top_products: TopProductInReport[];
+  top_customers: TopCustomerInReport[];
+}
+
 // ======= TIPOS DE ESTADO DE LA APLICACIÓN =======
 export interface AppState {
   auth: AuthState;
@@ -275,6 +351,7 @@ export interface SalesState {
   reports: {
     bestSelling: ProductSalesStats[];
     dailySummary: DailySalesSummary[];
+    periodReport: PeriodSalesReportResponse | null;
   };
   loading: boolean;
 }

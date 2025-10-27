@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { Entity, Action, Role } from '../../constants';
+import PermissionGate from '../PermissionGate/PermissionGate';
 import './Navigation.css';
 
 interface NavigationItem {
@@ -188,6 +189,17 @@ export const Navigation: React.FC = () => {
             <span className="nav-label">{item.label}</span>
           </Link>
         ))}
+
+        {/* Gestión de Usuarios - Solo SUPERADMIN activo */}
+        {activeRole === Role.SUPERADMIN && (
+          <Link
+            to="/admin/users"
+            className={`nav-item ${location.pathname === '/admin/users' ? 'active' : ''}`}
+          >
+            <span className="nav-icon">👥</span>
+            <span className="nav-label">Usuarios</span>
+          </Link>
+        )}
       </div>
 
       <div className="nav-footer">

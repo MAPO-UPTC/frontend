@@ -57,6 +57,7 @@ interface MAPOStore extends AppState {
   // ======= REPORTS ACTIONS =======
   loadBestSellingProducts: (limit?: number) => Promise<void>;
   loadDailySummary: (date: Timestamp) => Promise<void>;
+  loadPeriodSalesReport: (request: import('../types').PeriodSalesReportRequest) => Promise<void>;
   
   // ======= UI ACTIONS =======
   addNotification: (notification: Omit<Notification, 'id' | 'timestamp'>) => void;
@@ -168,6 +169,7 @@ const initialState: AppState = {
     reports: {
       bestSelling: [],
       dailySummary: [],
+      periodReport: null,
     },
     loading: false,
   },
@@ -758,6 +760,38 @@ export const useMAPOStore = create<MAPOStore>()(
       loadBestSellingProducts: async (limit = 10) => {},
 
       loadDailySummary: async (date) => {},
+
+      loadPeriodSalesReport: async (request) => {
+        set((state) => ({
+          sales: { ...state.sales, loading: true }
+        }));
+
+        try {
+          const report = await apiClient.getPeriodSalesReport(request);
+          
+          set((state) => ({
+            sales: {
+              ...state.sales,
+              reports: {
+                ...state.sales.reports,
+                periodReport: report,
+              },
+              loading: false,
+            }
+          }));
+        } catch (error) {
+          console.error('Error loading period sales report:', error);
+          set((state) => ({
+            sales: { ...state.sales, loading: false }
+          }));
+          
+          get().addNotification({
+            type: 'error',
+            title: 'Error',
+            message: 'No se pudo cargar el reporte de ventas',
+          });
+        }
+      },
 
       // ======= UI ACTIONS =======
       addNotification: (notification) => {

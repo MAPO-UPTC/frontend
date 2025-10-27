@@ -10,6 +10,8 @@ import {
   SalesReportFilter,
   BestSellingProductsReport,
   DailySalesSummary,
+  PeriodSalesReportRequest,
+  PeriodSalesReportResponse,
   UUID,
   Timestamp,
   APIError,
@@ -30,7 +32,11 @@ import {
   InventoryLotDetailWithProduct,
   InventoryLotDetailsResponse,
   InventoryStockInfo,
-  InventoryStockReport
+  InventoryStockReport,
+  UserWithRoles,
+  UsersListResponse,
+  RoleName,
+  RoleManagementResponse
 } from '../types';
 
 // Configuración inteligente de URL base para el cliente TypeScript
@@ -281,6 +287,18 @@ export class MAPOAPIClient {
     return this.request<DailySalesSummary>(`/sales/reports/daily/${date}`);
   }
 
+  /**
+   * Obtener reporte de ventas por periodo (diario, semanal, mensual)
+   * @param request - Parámetros del reporte
+   * @returns Reporte completo con métricas y tops
+   */
+  async getPeriodSalesReport(request: import('../types').PeriodSalesReportRequest): Promise<import('../types').PeriodSalesReportResponse> {
+    return this.request<import('../types').PeriodSalesReportResponse>('/reports/sales', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
   async getSalesReportByDateRange(startDate: string, endDate: string): Promise<any> {
     return this.request<any>(`/sales/reports/range?start_date=${startDate}&end_date=${endDate}`);
   }
@@ -516,6 +534,66 @@ export class MAPOAPIClient {
     } catch (error) {
       return { status: 'error', message: 'Failed to connect to server' };
     }
+  }
+
+  // ======= ROLE MANAGEMENT ENDPOINTS =======
+  /**
+   * Obtener todos los usuarios registrados en el sistema
+   * Requiere: Rol SUPERADMIN
+   */
+  async getAllUsers(): Promise<UsersListResponse> {
+    return this.request<UsersListResponse>('/role-management/users');
+  }
+
+  /**
+   * Asignar un rol a un usuario
+   * Requiere: Rol SUPERADMIN
+   */
+  async assignRoleToUser(
+    userId: UUID,
+    role: import('../types').RoleName
+  ): Promise<import('../types').RoleManagementResponse> {
+    return this.request<import('../types').RoleManagementResponse>(
+      `/role-management/users/${userId}/roles`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, role }),
+      }
+    );
+  }
+
+  /**
+   * Actualizar todos los roles de un usuario (reemplaza roles existentes)
+   * Requiere: Rol SUPERADMIN
+   */
+  async updateUserRoles(
+    userId: UUID,
+    roles: import('../types').RoleName[]
+  ): Promise<import('../types').RoleManagementResponse> {
+    return this.request<import('../types').RoleManagementResponse>(
+      `/role-management/users/${userId}/roles`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(roles),
+      }
+    );
+  }
+
+  /**
+   * Remover un rol de un usuario
+   * Requiere: Rol SUPERADMIN
+   */
+  async removeRoleFromUser(
+    userId: UUID,
+    role: import('../types').RoleName
+  ): Promise<import('../types').RoleManagementResponse> {
+    return this.request<import('../types').RoleManagementResponse>(
+      '/role-management/remove-role',
+      {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, role }),
+      }
+    );
   }
 }
 
