@@ -10,6 +10,7 @@
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+
 }
 
 .product-form-modal {
@@ -17,8 +18,11 @@
   border-radius: 8px;
   width: 100%;
   max-width: 800px;
+  min-width: 320px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
@@ -32,6 +36,7 @@
   top: 0;
   background: white;
   z-index: 1;
+
 }
 
 .modal-header h2 {
@@ -58,6 +63,9 @@
 
 .product-form {
   padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .form-section {
@@ -128,6 +136,7 @@
 }
 
 .presentation-card {
+  display: block;
   background: #f8f9fa;
   border: 1px solid #e1e5e9;
   border-radius: 8px;
@@ -169,13 +178,10 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding-top: 20px;
-  border-top: 1px solid #e1e5e9;
-  position: sticky;
-  bottom: 0;
-  background: white;
-  margin: 0 -24px -24px -24px;
   padding: 20px 24px;
+  border-top: 1px solid #e1e5e9;
+  background: white;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -209,8 +215,7 @@
   
   .modal-actions {
     flex-direction: column-reverse;
-    margin: 0 -20px -20px -20px;
-    padding: 20px;
+    padding: 16px;
   }
   
   .modal-actions button {
@@ -229,3 +234,393 @@
     padding: 16px;
   }
 }
+
+/* Estilos adicionales para edición de presentaciones */
+.presentations-summary {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.info-text {
+  color: #666;
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.presentations-list-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.presentation-preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e1e5e9;
+  transition: all 0.2s ease;
+}
+
+.presentation-preview-item:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+}
+
+.presentation-preview-item .presentation-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.presentation-preview-item .presentation-detail {
+  color: #666;
+  font-size: 13px;
+}
+
+.presentation-details {
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 12px;
+}
+
+.presentation-details p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.presentation-details strong {
+  color: #333;
+  min-width: 100px;
+}
+
+.presentation-actions-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.presentations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Scrollbar personalizado */
+.presentations-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.presentations-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.presentations-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.presentations-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.presentation-card {
+  background: #ffffff;
+  border: 2px solid #e1e5e9;
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.presentation-card:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.presentation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.presentation-header h4 {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.presentation-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.loading-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.loading-state p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Mejora para el modal de presentaciones */
+.product-form-modal.presentations-modal {
+  max-width: 900px;
+  min-width: 700px;
+  width: 85vw;
+}
+
+@media (max-width: 1024px) {
+  .product-form-modal.presentations-modal {
+    min-width: 600px;
+    width: 90vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-form-modal.presentations-modal {
+    min-width: 320px;
+    width: 95vw;
+  }
+}
+
+/* Estilos para formularios en edición */
+.presentation-card .form-row {
+  margin-bottom: 16px;
+}
+
+.presentation-card .form-group {
+  margin-bottom: 0;
+}
+
+.presentation-card .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.presentation-card .form-group input,
+.presentation-card .form-group select {
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+/* Badge para nueva presentación */
+.presentation-header h4::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4CAF50;
+  display: inline-block;
+}
+
+.presentation-card .presentation-header h4::before {
+  background: #2196F3;
+}
+
+/* Indicador de edición activa */
+.presentation-card.editing {
+  border-color: #2196F3;
+  background: #f8fbff;
+  display: flex;
+  flex-direction: column;
+}
+
+.presentation-card.editing .presentation-header {
+  border-bottom-color: #2196F3;
+}
+
+/* Presentación inactiva */
+.presentation-card.inactive-presentation {
+  opacity: 0.7;
+  border-color: #ddd;
+  background: #f5f5f5;
+}
+
+.presentation-card.inactive-presentation .presentation-header h4 {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.presentation-card.inactive-presentation .presentation-details {
+  color: #999;
+}
+
+/* Empty state mejorado */
+.info-text.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 15px;
+}
+
+/* Responsive para modal de presentaciones */
+@media (max-width: 768px) {
+  .presentations-modal {
+    max-width: 100%;
+  }
+  
+  .presentations-list-preview {
+    grid-template-columns: 1fr;
+  }
+  
+  .presentation-card .form-row {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .section-header h3 {
+    font-size: 16px;
+  }
+  
+  .presentation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .presentation-actions {
+    flex-direction: column;
+  }
+  
+  .presentation-actions button {
+    width: 100%;
+  }
+}
+
+/* Animaciones suaves */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.presentation-card {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Mejoras visuales para inputs en modo edición */
+.presentation-card.editing input:focus,
+.presentation-card.editing select:focus,
+.presentation-card.editing textarea:focus {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+/* Formulario en modo edición de presentaciones - vertical */
+.presentation-card.editing .form-group {
+  margin-bottom: 16px;
+}
+
+.presentation-card.editing .form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Solo cantidad y unidad en horizontal */
+.presentation-card.editing .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.presentation-card.editing .form-row .form-group {
+  margin-bottom: 0;
+}
+
+/* Checkbox group con mejor espaciado */
+.checkbox-group {
+  padding: 12px 0;
+  margin-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  font-weight: normal;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.checkbox-label span {
+  flex: 1;
+}
+
+.checkbox-label:hover {
+  color: #333;
+}
+
+/* Estilo para el contador de presentaciones */
+.section-header h3 strong {
+  color: #4CAF50;
+}
+
