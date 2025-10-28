@@ -17,14 +17,9 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
-    path: '/dashboard',
-    label: 'Dashboard',
-    icon: '🏠',
-  },
-  {
     path: '/products',
     label: 'Productos',
-    icon: '�️',
+    icon: '🛍️',
     entity: Entity.PRODUCTS,
     action: Action.READ,
     requiresAuth: false // Los productos pueden ser públicos
@@ -32,7 +27,7 @@ const navigationItems: NavigationItem[] = [
   {
     path: '/sales',
     label: 'Ventas',
-    icon: '�',
+    icon: '💰',
     entity: Entity.SALES_ORDERS,
     action: Action.CREATE,
     requiresAuth: true
@@ -40,7 +35,7 @@ const navigationItems: NavigationItem[] = [
   {
     path: '/sales/history',
     label: 'Historial',
-    icon: '�',
+    icon: '📋',
     entity: Entity.SALES_ORDERS,
     action: Action.READ,
     requiresAuth: true
@@ -48,7 +43,7 @@ const navigationItems: NavigationItem[] = [
   {
     path: '/inventory',
     label: 'Inventario',
-    icon: '�',
+    icon: '📦',
     entity: Entity.INVENTORY,
     action: Action.READ,
     requiresAuth: true
@@ -56,7 +51,7 @@ const navigationItems: NavigationItem[] = [
   {
     path: '/reports',
     label: 'Reportes',
-    icon: '�',
+    icon: '📊',
     entity: Entity.SALES_ORDERS,
     action: Action.READ,
     requiresAuth: true
