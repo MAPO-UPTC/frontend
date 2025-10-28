@@ -24,6 +24,11 @@ import {
   BulkStockItem,
   ProductCreate,
   ProductCreateResponse,
+  ProductUpdate,
+  ProductUpdateResponse,
+  ProductPresentationCreate,
+  ProductPresentationUpdate,
+  PresentationResponse,
   SupplierCreate,
   InventoryLot,
   InventoryLotCreate,
@@ -157,8 +162,9 @@ export class MAPOAPIClient {
     return this.request<Product[]>('/products/');
   }
 
-  async getProductById(productId: UUID): Promise<Product> {
-    return this.request<Product>(`/products/${productId}`);
+  async getProductById(productId: UUID, includeInactive: boolean = false): Promise<Product> {
+    const params = includeInactive ? '?include_inactive=true' : '';
+    return this.request<Product>(`/products/${productId}${params}`);
   }
 
   /**
@@ -171,6 +177,56 @@ export class MAPOAPIClient {
       method: 'POST',
       body: JSON.stringify(productData),
     });
+  }
+
+  /**
+   * Actualizar un producto existente
+   * @param productId - UUID del producto a actualizar
+   * @param productData - Datos parciales a actualizar
+   * @returns Respuesta del servidor con el producto actualizado
+   */
+  async updateProduct(productId: UUID, productData: ProductUpdate): Promise<ProductUpdateResponse> {
+    return this.request<ProductUpdateResponse>(`/products/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify(productData),
+    });
+  }
+
+  /**
+   * Agregar una nueva presentación a un producto existente
+   * @param productId - UUID del producto
+   * @param presentationData - Datos de la nueva presentación
+   * @returns Respuesta del servidor con la presentación creada
+   */
+  async createPresentation(
+    productId: UUID, 
+    presentationData: ProductPresentationCreate
+  ): Promise<PresentationResponse> {
+    return this.request<PresentationResponse>(`/products/${productId}/presentations`, {
+      method: 'POST',
+      body: JSON.stringify(presentationData),
+    });
+  }
+
+  /**
+   * Actualizar una presentación existente
+   * @param productId - UUID del producto
+   * @param presentationId - UUID de la presentación
+   * @param presentationData - Datos parciales a actualizar
+   * @returns Respuesta del servidor con la presentación actualizada
+   */
+  async updatePresentation(
+    productId: UUID,
+    presentationId: UUID,
+    presentationData: ProductPresentationUpdate
+  ): Promise<PresentationResponse> {
+    return this.request<PresentationResponse>(
+      `/products/${productId}/presentations/${presentationId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(presentationData),
+      }
+    );
   }
 
   async getPresentationById(presentationId: UUID): Promise<any> {

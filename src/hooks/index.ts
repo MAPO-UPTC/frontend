@@ -4,3 +4,4 @@ export { useInventory } from './useInventory';
 export { useReports } from './useReports';
 export { useUI } from './useUI';
 export { useUserManagement } from './useUserManagement';
+export { useProductEdit } from './useProductEdit';

@@ -513,6 +513,48 @@ export interface ProductCreateResponse {
 }
 
 /**
+ * Interface para actualizar un producto existente
+ * Todos los campos son opcionales - solo se actualizan los campos proporcionados
+ */
+export interface ProductUpdate {
+  name?: string;
+  description?: string;
+  brand?: string | null;
+  base_unit?: string;
+  category_id?: UUID | null;
+  image_url?: string | null;
+}
+
+/**
+ * Interface para actualizar una presentación existente
+ * Todos los campos son opcionales - solo se actualizan los campos proporcionados
+ */
+export interface ProductPresentationUpdate {
+  presentation_name?: string;
+  quantity?: number;
+  unit?: string;
+  price?: number;
+  sku?: string | null;
+  active?: boolean;
+}
+
+/**
+ * Interface para la respuesta al actualizar producto
+ */
+export interface ProductUpdateResponse {
+  message: string;
+  product: Product;
+}
+
+/**
+ * Interface para la respuesta al crear/actualizar presentación
+ */
+export interface PresentationResponse {
+  message: string;
+  presentation: ProductPresentation;
+}
+
+/**
  * Interface para errores de validación
  */
 export interface ValidationError {

@@ -6,9 +6,11 @@ import BulkConversionModal from '../BulkConversionModal';
 import CreateProductForm from '../CreateProductForm/CreateProductForm';
 import InventoryReception from '../InventoryReception/InventoryReception';
 import CreateCategoryModal from './CreateCategoryModal';
-import './InventoryDashboard.css';
 import CreateSupplierModal from './CreateSupplierModal';
-import { AddPresentationModal } from '../AddPresentationModal';
+import { EditProductModal } from './EditProductModal';
+import { EditPresentationsModal } from './EditPresentationsModal';
+import './InventoryDashboard.css';
+
 
 interface InventoryDashboardProps {
   onProductSelect?: (product: Product) => void;
@@ -29,8 +31,6 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateSupplierModal, setShowCreateSupplierModal] = useState(false);
-  const [showAddPresentationModal, setShowAddPresentationModal] = useState(false);
-  const [selectedProductForPresentation, setSelectedProductForPresentation] = useState<UUID | null>(null);
 
   
   // Estado para el modal de creación de producto
@@ -40,6 +40,23 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   
   // Estado para el modal de recepción de mercancía
   const [showReceptionModal, setShowReceptionModal] = useState(false);
+  
+  // Estados para edición de productos
+  const [editProductModal, setEditProductModal] = useState<{
+    isOpen: boolean;
+    productId: UUID | null;
+  }>({
+    isOpen: false,
+    productId: null,
+  });
+
+  const [editPresentationsModal, setEditPresentationsModal] = useState<{
+    isOpen: boolean;
+    productId: UUID | null;
+  }>({
+    isOpen: false,
+    productId: null,
+  });
   
   // Estado para el modal de conversión a granel
   const [bulkConversionModal, setBulkConversionModal] = useState<{
@@ -75,6 +92,55 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       await loadProductsForCategory(categoryId);
     } else {
       await loadProducts();
+    }
+  };
+
+  const handleEditProduct = (productId: UUID) => {
+    setEditProductModal({
+      isOpen: true,
+      productId,
+    });
+  };
+
+  const handleCloseEditProduct = () => {
+    setEditProductModal({
+      isOpen: false,
+      productId: null,
+    });
+  };
+
+  const handleEditProductSuccess = () => {
+    // Recargar productos después de editar
+    if (selectedCategory) {
+      loadProductsForCategory(selectedCategory);
+    } else {
+      loadProducts();
+    }
+  };
+
+  const handleOpenEditPresentations = () => {
+    // Copiar el productId del modal de edición al modal de presentaciones
+    if (editProductModal.productId) {
+      setEditPresentationsModal({
+        isOpen: true,
+        productId: editProductModal.productId,
+      });
+    }
+  };
+
+  const handleCloseEditPresentations = () => {
+    setEditPresentationsModal({
+      isOpen: false,
+      productId: null,
+    });
+  };
+
+  const handleEditPresentationsSuccess = () => {
+    // Recargar productos después de editar presentaciones
+    if (selectedCategory) {
+      loadProductsForCategory(selectedCategory);
+    } else {
+      loadProducts();
     }
   };
 
@@ -309,22 +375,15 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                 </div>
 
                 <div className="product-actions">
-                  <Button size="small" variant="outline">
-                    Editar
-                  </Button>
                   <Button 
                     size="small" 
                     variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedProductForPresentation(product.id);
-                      setShowAddPresentationModal(true);
+                      handleEditProduct(product.id);
                     }}
                   >
-                    + Agregar Presentación
-                  </Button>
-                  <Button size="small" variant="secondary">
-                    Ajustar Stock
+                    Editar
                   </Button>
                 </div>
               </div>
@@ -332,28 +391,6 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           )}
         </div>
       </div>
-
-      {/* Modal de agregar presentación */}
-      {showAddPresentationModal && selectedProductForPresentation && (
-        <AddPresentationModal
-          isOpen={showAddPresentationModal}
-          onClose={() => {
-            setShowAddPresentationModal(false);
-            setSelectedProductForPresentation(null);
-          }}
-          productId={selectedProductForPresentation}
-          onSuccess={() => {
-            // Recargar productos después de agregar la presentación
-            if (selectedCategory) {
-              loadProductsForCategory(selectedCategory);
-            } else {
-              loadProducts();
-            }
-            setShowAddPresentationModal(false);
-            setSelectedProductForPresentation(null);
-          }}
-        />
-      )}
 
       {/* Modal de conversión a granel */}
       {bulkConversionModal.isOpen && bulkConversionModal.presentationId && bulkConversionModal.targetPresentationId && bulkConversionModal.productId && (
@@ -393,6 +430,27 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             />
           </div>
         </div>
+      )}
+
+      {/* Modal de edición de producto */}
+      {editProductModal.isOpen && editProductModal.productId && (
+        <EditProductModal
+          productId={editProductModal.productId}
+          isOpen={editProductModal.isOpen}
+          onClose={handleCloseEditProduct}
+          onSuccess={handleEditProductSuccess}
+          onEditPresentations={handleOpenEditPresentations}
+        />
+      )}
+
+      {/* Modal de edición de presentaciones */}
+      {editPresentationsModal.isOpen && editPresentationsModal.productId && (
+        <EditPresentationsModal
+          productId={editPresentationsModal.productId}
+          isOpen={editPresentationsModal.isOpen}
+          onClose={handleCloseEditPresentations}
+          onSuccess={handleEditPresentationsSuccess}
+        />
       )}
     </div>
   );
