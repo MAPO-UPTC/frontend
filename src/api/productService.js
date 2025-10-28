@@ -116,6 +116,26 @@ export const productService = {
   deleteProduct: async (productId) => {
     const response = await api.delete(`/products/${productId}`);
     return response.data;
+  },
+
+  /**
+   * Agregar una nueva presentación a un producto existente
+   * @param {string} productId - ID del producto
+   * @param {Object} presentationData - Datos de la presentación
+   * @returns {Promise} Presentación creada
+   */
+  addPresentation: async (productId, presentationData) => {
+    try {
+      const response = await api.post(`/products/${productId}/presentations`, presentationData);
+      console.log("✅ Presentación creada exitosamente:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error al crear presentación:");
+      console.error("Status:", error.response?.status);
+      console.error("Data:", error.response?.data);
+      console.error("Full error:", error);
+      throw error;
+    }
   }
 };
 

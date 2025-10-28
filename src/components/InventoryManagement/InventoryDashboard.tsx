@@ -10,6 +10,8 @@ import CreateSupplierModal from './CreateSupplierModal';
 import { EditProductModal } from './EditProductModal';
 import { EditPresentationsModal } from './EditPresentationsModal';
 import './InventoryDashboard.css';
+import { AddPresentationModal } from '../AddPresentationModal';
+
 
 interface InventoryDashboardProps {
   onProductSelect?: (product: Product) => void;
@@ -30,6 +32,8 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateSupplierModal, setShowCreateSupplierModal] = useState(false);
+  const [showAddPresentationModal, setShowAddPresentationModal] = useState(false);
+  const [selectedProductForPresentation, setSelectedProductForPresentation] = useState<UUID | null>(null);
 
   
   // Estado para el modal de creación de producto
@@ -384,12 +388,48 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                   >
                     Editar
                   </Button>
+                  <Button 
+                    size="small" 
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedProductForPresentation(product.id);
+                      setShowAddPresentationModal(true);
+                    }}
+                  >
+                    + Agregar Presentación
+                  </Button>
+                  <Button size="small" variant="secondary">
+                    Ajustar Stock
+                  </Button>
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      {/* Modal de agregar presentación */}
+      {showAddPresentationModal && selectedProductForPresentation && (
+        <AddPresentationModal
+          isOpen={showAddPresentationModal}
+          onClose={() => {
+            setShowAddPresentationModal(false);
+            setSelectedProductForPresentation(null);
+          }}
+          productId={selectedProductForPresentation}
+          onSuccess={() => {
+            // Recargar productos después de agregar la presentación
+            if (selectedCategory) {
+              loadProductsForCategory(selectedCategory);
+            } else {
+              loadProducts();
+            }
+            setShowAddPresentationModal(false);
+            setSelectedProductForPresentation(null);
+          }}
+        />
+      )}
 
       {/* Modal de conversión a granel */}
       {bulkConversionModal.isOpen && bulkConversionModal.presentationId && bulkConversionModal.targetPresentationId && bulkConversionModal.productId && (
