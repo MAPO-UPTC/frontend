@@ -156,7 +156,8 @@
 }
 
 .user-card {
-  background: white;
+  background: #faf8f8;
+  border: 1px solid #e0e0e0;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -179,8 +180,8 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
-  color: white;
+  background: linear-gradient(135deg, #FA9739 0%, #EF6824 100%);
+  color: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,7 +277,7 @@
 .edit-user-btn {
   width: 100%;
   padding: 0.75rem;
-  background: var(--primary-color);
+  background-color: #0F395F;
   color: white;
   border: none;
   border-radius: 8px;
@@ -287,7 +288,7 @@
 }
 
 .edit-user-btn:hover {
-  background: #4f46e5;
+  background: #2563eb;
   transform: translateX(4px);
 }
 
