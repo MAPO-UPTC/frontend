@@ -30,6 +30,7 @@ import {
   ProductPresentationUpdate,
   PresentationResponse,
   SupplierCreate,
+  SupplierUpdate,
   InventoryLot,
   InventoryLotCreate,
   InventoryLotDetail,
@@ -490,24 +491,40 @@ export class MAPOAPIClient {
 
   /**
    * Gestión de Proveedores (Suppliers)
+   * Requiere: ADMIN o SUPERADMIN para crear/actualizar/eliminar
    */
   
+  // Listar proveedores
+  async getSuppliers(): Promise<Supplier[]> {
+    return this.request<Supplier[]>('/suppliers/');
+  }
+
+  // Obtener proveedor por ID
+  async getSupplierById(supplierId: UUID): Promise<Supplier> {
+    return this.request<Supplier>(`/suppliers/${supplierId}`);
+  }
+
   // Crear proveedor
   async createSupplier(supplierData: SupplierCreate): Promise<Supplier> {
-    return this.request<Supplier>('/inventory/suppliers/', {
+    return this.request<Supplier>('/suppliers/', {
       method: 'POST',
       body: JSON.stringify(supplierData),
     });
   }
 
-  // Listar proveedores
-  async getSuppliers(skip: number = 0, limit: number = 100): Promise<Supplier[]> {
-    return this.request<Supplier[]>(`/inventory/suppliers/?skip=${skip}&limit=${limit}`);
+  // Actualizar proveedor
+  async updateSupplier(supplierId: UUID, data: SupplierUpdate): Promise<Supplier> {
+    return this.request<Supplier>(`/suppliers/${supplierId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
-  // Obtener proveedor por ID
-  async getSupplierById(supplierId: UUID): Promise<Supplier> {
-    return this.request<Supplier>(`/inventory/suppliers/${supplierId}`);
+  // Eliminar proveedor
+  async deleteSupplier(supplierId: UUID): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/suppliers/${supplierId}`, {
+      method: 'DELETE',
+    });
   }
 
   /**

@@ -5,7 +5,6 @@ import { Navigation } from "./components/Navigation/Navigation";
 
 // Pages
 import Login from "./pages/login/Login";
-import Dashboard from "./pages/dashboard/Dashboard";
 import Signup from "./pages/signup/Signup";
 import Products from "./pages/products/Products";
 import CreateProduct from "./pages/createProduct/CreateProduct";
@@ -16,6 +15,7 @@ import SaleDetails from "./pages/SaleDetails/SaleDetails";
 import { Inventory } from "./pages/Inventory/Inventory";
 import { Reports } from "./pages/Reports/Reports";
 import { UserManagementPage } from "./pages/UserManagementPage/UserManagementPage";
+import SuppliersPage from "./pages/Suppliers";
 
 import { useRef, useEffect } from "react";
 import "./App.css";
@@ -54,19 +54,11 @@ function AnimatedRoutes() {
         <CSSTransition key={location.pathname} classNames="fade" timeout={400} nodeRef={nodeRef}>
           <div ref={nodeRef}>
             <Routes location={location}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/products" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               
               {/* Protected Routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
               <Route
                 path="/sales"
                 element={
@@ -139,9 +131,18 @@ function AnimatedRoutes() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/suppliers"
+                element={
+                  <PrivateRoute>
+                    <SuppliersPage />
+                  </PrivateRoute>
+                }
+              />
               
               {/* Legacy routes for compatibility */}
-              <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/home" element={<Navigate to="/products" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/products" replace />} />
             </Routes>
           </div>
         </CSSTransition>

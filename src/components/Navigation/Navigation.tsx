@@ -49,6 +49,14 @@ const navigationItems: NavigationItem[] = [
     requiresAuth: true
   },
   {
+    path: '/suppliers',
+    label: 'Proveedores',
+    icon: '🚚',
+    entity: Entity.SUPPLIERS,
+    action: Action.READ,
+    requiresAuth: true
+  },
+  {
     path: '/reports',
     label: 'Reportes',
     icon: '📊',
@@ -107,10 +115,10 @@ export const Navigation: React.FC = () => {
   return (
     <nav className="navigation">
       <div className="nav-header">
-        <div className="nav-logo">
+        <Link to="/products" className="nav-logo">
           <img src="/mapo-logo.png" alt="MAPO" className="logo-image" />
           <span className="logo-text">MAPO</span>
-        </div>
+        </Link>
         
         <div className="user-info">
           <div className="user-avatar">

@@ -603,6 +603,17 @@ export interface SupplierCreate {
 }
 
 /**
+ * Interface para actualizar un proveedor
+ */
+export interface SupplierUpdate {
+  name?: string;
+  address?: string | null;
+  phone_number?: string | null;
+  email?: string | null;
+  contact_person?: string | null;
+}
+
+/**
  * Interface para Lote de Inventario (InventoryLot)
  */
 export interface InventoryLot {

@@ -299,6 +299,7 @@
   padding: 8px 16px;
   border-radius: 25px;
   border: 2px solid var(--mapo-gray-medium);
+  flex-direction: column;
 }
 
 .user-email {

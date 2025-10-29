@@ -6,7 +6,6 @@ import BulkConversionModal from '../BulkConversionModal';
 import CreateProductForm from '../CreateProductForm/CreateProductForm';
 import InventoryReception from '../InventoryReception/InventoryReception';
 import CreateCategoryModal from './CreateCategoryModal';
-import CreateSupplierModal from './CreateSupplierModal';
 import { EditProductModal } from './EditProductModal';
 import { EditPresentationsModal } from './EditPresentationsModal';
 import './InventoryDashboard.css';
@@ -30,7 +29,6 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateSupplierModal, setShowCreateSupplierModal] = useState(false);
 
   
   // Estado para el modal de creación de producto
@@ -241,18 +239,8 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           <Button variant="outline" onClick={() => setShowCreateCategoryModal(true)}>
             + Nueva Categoría
           </Button>
-          <Button variant="outline" onClick={() => setShowCreateSupplierModal(true)}>
-            + Nuevo Proveedor
-          </Button>
         </div>
 
-      {/* Modal de creación de proveedor */}
-      {showCreateSupplierModal && (
-        <CreateSupplierModal
-          onSuccess={() => setShowCreateSupplierModal(false)}
-          onCancel={() => setShowCreateSupplierModal(false)}
-        />
-      )}
       </div>
       {/* Modal de creación de categoría */}
       {showCreateCategoryModal && (
