@@ -14,6 +14,7 @@
 /api/reports/*  https://142.93.187.32.nip.io/reports/:splat  200
 /api/suppliers/*  https://142.93.187.32.nip.io/suppliers/:splat  200
 /api/health  https://142.93.187.32.nip.io/health  200
+/api/admin/users  https://142.93.187.32.nip.io/admin/users  200
 
 # React Router fallback - TODAS las páginas del frontend
 /*    /index.html   200
