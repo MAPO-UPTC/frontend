@@ -124,7 +124,7 @@ function AnimatedRoutes() {
                 }
               />
               <Route
-                path="/admin/users"
+                path="/users"
                 element={
                   <PrivateRoute>
                     <UserManagementPage />
