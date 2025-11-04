@@ -8,6 +8,7 @@ import InventoryReception from '../InventoryReception/InventoryReception';
 import CreateCategoryModal from './CreateCategoryModal';
 import { EditProductModal } from './EditProductModal';
 import { EditPresentationsModal } from './EditPresentationsModal';
+import { ProductReturnsModal } from '../ProductReturns';
 import './InventoryDashboard.css';
 
 
@@ -38,6 +39,9 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   
   // Estado para el modal de recepción de mercancía
   const [showReceptionModal, setShowReceptionModal] = useState(false);
+  
+  // Estado para el modal de devoluciones
+  const [showReturnsModal, setShowReturnsModal] = useState(false);
   
   // Estados para edición de productos
   const [editProductModal, setEditProductModal] = useState<{
@@ -213,6 +217,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     setShowReceptionModal(false);
   };
 
+  const handleReturnsSuccess = () => {
+    // Recargar productos después de procesar devoluciones
+    if (selectedCategory) {
+      loadProductsForCategory(selectedCategory);
+    } else {
+      loadProducts();
+    }
+    setShowReturnsModal(false);
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -235,6 +249,9 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           </Button>
           <Button variant="secondary" onClick={() => setShowReceptionModal(true)}>
             📦 Recepción de Mercancía
+          </Button>
+          <Button variant="danger" onClick={() => setShowReturnsModal(true)}>
+            ↩️ Devoluciones
           </Button>
           <Button variant="outline" onClick={() => setShowCreateCategoryModal(true)}>
             + Nueva Categoría
@@ -438,6 +455,14 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           isOpen={editPresentationsModal.isOpen}
           onClose={handleCloseEditPresentations}
           onSuccess={handleEditPresentationsSuccess}
+        />
+      )}
+
+      {/* Modal de devoluciones */}
+      {showReturnsModal && (
+        <ProductReturnsModal
+          onClose={() => setShowReturnsModal(false)}
+          onSuccess={handleReturnsSuccess}
         />
       )}
     </div>

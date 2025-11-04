@@ -16,6 +16,7 @@ import { Inventory } from "./pages/Inventory/Inventory";
 import { Reports } from "./pages/Reports/Reports";
 import { UserManagementPage } from "./pages/UserManagementPage/UserManagementPage";
 import SuppliersPage from "./pages/Suppliers";
+import { Returns } from "./pages/Returns";
 
 import { useRef, useEffect } from "react";
 import "./App.css";
@@ -136,6 +137,14 @@ function AnimatedRoutes() {
                 element={
                   <PrivateRoute>
                     <SuppliersPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/returns"
+                element={
+                  <PrivateRoute>
+                    <Returns />
                   </PrivateRoute>
                 }
               />

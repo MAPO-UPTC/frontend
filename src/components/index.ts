@@ -6,6 +6,12 @@ export * from './ProductSearch';
 // Inventory Components
 export * from './InventoryManagement';
 
+// Product Returns Components
+export * from './ProductReturns';
+
+// Returns Management Components
+export * from './ReturnsManagement';
+
 // Supplier Components
 export * from './Suppliers';
 

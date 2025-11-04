@@ -49,6 +49,14 @@ const navigationItems: NavigationItem[] = [
     requiresAuth: true
   },
   {
+    path: '/returns',
+    label: 'Devoluciones',
+    icon: '↩️',
+    entity: Entity.SALES_ORDERS,
+    action: Action.READ,
+    requiresAuth: true
+  },
+  {
     path: '/inventory',
     label: 'Inventario',
     icon: '📦',

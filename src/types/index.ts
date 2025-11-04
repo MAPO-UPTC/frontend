@@ -190,7 +190,10 @@ export interface Sale {
   user_id?: UUID; // Usuario que realizó la venta
   sale_date: Timestamp;
   total_amount?: number; // Para ventas individuales
-  total?: number; // Para historial de ventas
+  total?: number; // Total original de la venta
+  total_refunded?: number; // Total reembolsado por devoluciones
+  total_net?: number; // Total neto (total - total_refunded)
+  has_returns?: boolean; // Indica si la venta tiene devoluciones
   status: string;
   notes?: string;
   sale_details?: SaleDetail[]; // Algunos endpoints devuelven sale_details
@@ -200,11 +203,16 @@ export interface Sale {
 
 export interface SaleDetail {
   id: UUID;
-  product_id: UUID;
+  product_id?: UUID;
   product_name?: string; // Opcional, puede no venir en items
-  quantity: number;
+  presentation_id?: UUID;
+  presentation_name?: string; // Nombre de la presentación
+  quantity: number; // Cantidad original vendida
+  quantity_returned?: number; // Cantidad ya devuelta
+  quantity_net?: number; // Cantidad neta (quantity - quantity_returned)
   unit_price: number;
-  is_bulk_sale: boolean; // Indicador si es venta a granel
+  line_total?: number; // Total de la línea
+  is_bulk_sale?: boolean; // Indicador si es venta a granel
   subtotal?: number; // Calculado en frontend
   lot_detail_id?: UUID | null;
   bulk_conversion_id?: UUID | null;

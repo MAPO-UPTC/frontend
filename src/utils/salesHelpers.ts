@@ -53,7 +53,7 @@ export const getItemProductName = (item: SaleDetail, fallback: string = 'Product
  */
 export interface FormattedSaleItem {
   id: string;
-  productId: string;
+  productId?: string;
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -69,7 +69,7 @@ export const formatSaleItem = (item: SaleDetail): FormattedSaleItem => {
     quantity: item.quantity,
     unitPrice: item.unit_price,
     subtotal: calculateItemSubtotal(item),
-    isBulk: isBulkSaleItem(item)
+    isBulk: isBulkSaleItem(item) || false
   };
 };
 
