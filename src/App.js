@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { useAuth, AuthProvider } from "./context/AuthContext";
 import { Navigation } from "./components/Navigation/Navigation";
+import { NotificationToast } from "./components/UI";
 
 // Pages
 import Login from "./pages/login/Login";
@@ -169,6 +170,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <NotificationToast />
         <AnimatedRoutes />
       </BrowserRouter>
     </AuthProvider>

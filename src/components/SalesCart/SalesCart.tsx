@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../UI';
 import { CartItem, Customer } from '../../types';
+import { generateSalePDF } from '../../utils/pdfGenerator';
 import './SalesCart.css';
 
 interface SalesCartProps {
@@ -10,6 +11,8 @@ interface SalesCartProps {
   onProcessSale: () => void;
   isProcessing: boolean;
   canProcess: boolean;
+  lastSale?: any;
+  onClearSale?: () => void;
 }
 
 export const SalesCart: React.FC<SalesCartProps> = ({
@@ -18,7 +21,9 @@ export const SalesCart: React.FC<SalesCartProps> = ({
   customer,
   onProcessSale,
   isProcessing,
-  canProcess
+  canProcess,
+  lastSale,
+  onClearSale
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -26,6 +31,30 @@ export const SalesCart: React.FC<SalesCartProps> = ({
       currency: 'COP',
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const handlePrintSale = () => {
+    if (!lastSale) {
+      alert('No hay venta para imprimir');
+      return;
+    }
+
+    try {
+      generateSalePDF({
+        sale: lastSale,
+        customerName: lastSale.customerName,
+        customerDocument: lastSale.customerDocument
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF');
+    }
+  };
+
+  const handleNewSale = () => {
+    if (onClearSale) {
+      onClearSale();
+    }
   };
 
   return (
@@ -91,22 +120,49 @@ export const SalesCart: React.FC<SalesCartProps> = ({
       )}
 
       <div className="cart-actions">
-        <Button
-          variant="primary"
-          onClick={onProcessSale}
-          disabled={!canProcess || isProcessing}
-          loading={isProcessing}
-          className="process-sale-btn"
-        >
-          {isProcessing ? 'Procesando...' : 'Procesar Venta'}
-        </Button>
-        
-        {!customer && (
-          <p className="warning">Selecciona un cliente para continuar</p>
-        )}
-        
-        {items.length === 0 && (
-          <p className="warning">Agrega productos al carrito</p>
+        {!lastSale ? (
+          <>
+            <Button
+              variant="primary"
+              onClick={onProcessSale}
+              disabled={!canProcess || isProcessing}
+              loading={isProcessing}
+              className="process-sale-btn"
+            >
+              {isProcessing ? 'Procesando...' : 'Procesar Venta'}
+            </Button>
+            
+            {!customer && (
+              <p className="warning">Selecciona un cliente para continuar</p>
+            )}
+            
+            {items.length === 0 && (
+              <p className="warning">Agrega productos al carrito</p>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="sale-success">
+              <span className="success-icon">✅</span>
+              <p className="success-message">¡Venta procesada exitosamente!</p>
+            </div>
+            
+            <Button
+              variant="primary"
+              onClick={handlePrintSale}
+              className="print-sale-btn"
+            >
+              🖨️ Imprimir Comprobante
+            </Button>
+            
+            <Button
+              variant="secondary"
+              onClick={handleNewSale}
+              className="new-sale-btn"
+            >
+              🆕 Nueva Venta
+            </Button>
+          </>
         )}
       </div>
     </div>

@@ -1,0 +1,191 @@
+/* ===============================================
+   NOTIFICATION TOAST - CONTENEDOR
+   =============================================== */
+
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+/* ===============================================
+   NOTIFICATION TOAST - TARJETA
+   =============================================== */
+
+.notification-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid;
+  pointer-events: all;
+  animation: slideIn 0.3s ease-out;
+  transition: all 0.3s ease;
+}
+
+.notification-toast:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ===============================================
+   TIPOS DE NOTIFICACIÓN
+   =============================================== */
+
+.notification-success {
+  border-left-color: #10b981;
+  background: linear-gradient(to right, #ecfdf5, white);
+}
+
+.notification-error {
+  border-left-color: #ef4444;
+  background: linear-gradient(to right, #fef2f2, white);
+}
+
+.notification-warning {
+  border-left-color: #f59e0b;
+  background: linear-gradient(to right, #fffbeb, white);
+}
+
+.notification-info {
+  border-left-color: #3b82f6;
+  background: linear-gradient(to right, #eff6ff, white);
+}
+
+/* ===============================================
+   CONTENIDO DE LA NOTIFICACIÓN
+   =============================================== */
+
+.notification-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.notification-message {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.notification-close:active {
+  transform: scale(0.95);
+}
+
+/* ===============================================
+   ANIMACIONES
+   =============================================== */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* ===============================================
+   RESPONSIVE
+   =============================================== */
+
+@media (max-width: 640px) {
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .notification-toast {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .notification-icon {
+    font-size: 20px;
+  }
+
+  .notification-title {
+    font-size: 13px;
+  }
+
+  .notification-message {
+    font-size: 12px;
+  }
+}
+
+/* ===============================================
+   ACCESIBILIDAD
+   =============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .notification-toast {
+    animation: none;
+    transition: none;
+  }
+
+  .notification-toast:hover {
+    transform: none;
+  }
+}
