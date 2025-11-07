@@ -30,12 +30,24 @@ const PrivateRoute = ({ children }) => {
 
 const MainLayout = ({ children }) => {
   const { user } = useAuth();
+  const location = useLocation();
   console.log("MainLayout - usuario:", user);
   
+  // Páginas públicas que no requieren navegación
+  const publicPages = ['/login', '/signup', '/products'];
+  const isPublicPage = publicPages.includes(location.pathname);
+  
+  // Si no hay usuario y es una página pública, mostrar sin layout
+  if (!user && isPublicPage) {
+    return children;
+  }
+  
+  // Si no hay usuario y NO es una página pública, no mostrar nada (redirigirá)
   if (!user) {
     return children;
   }
 
+  // Usuario autenticado: mostrar con navegación
   return (
     <div className="app-layout">
       <Navigation />
@@ -103,11 +115,7 @@ function AnimatedRoutes() {
               />
               <Route
                 path="/products"
-                element={
-                  <PrivateRoute>
-                    <Products />
-                  </PrivateRoute>
-                }
+                element={<Products />}
               />
               <Route
                 path="/create-product"
