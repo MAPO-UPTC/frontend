@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useReports } from '../../hooks/useReports';
 import { Button } from '../UI';
 import { ReportPeriod } from '../../types';
+import { generateReportPDF } from '../../utils/pdfReportGenerator';
 import './ReportsDashboard.css';
 
 export const ReportsDashboard: React.FC = () => {
@@ -56,25 +57,10 @@ export const ReportsDashboard: React.FC = () => {
     if (!periodReport) return;
 
     try {
-      const reportData = {
-        ...periodReport,
-        exported_at: new Date().toISOString(),
-      };
-      
-      const blob = new Blob([JSON.stringify(reportData, null, 2)], {
-        type: 'application/json'
-      });
-      
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `reporte-ventas-${reportType}-${selectedDate}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      generateReportPDF(periodReport, reportType, selectedDate);
     } catch (error) {
-      console.error('Error exporting report:', error);
+      console.error('Error al generar PDF del reporte:', error);
+      alert('Error al generar el PDF. Por favor intente nuevamente.');
     }
   };
 
@@ -246,7 +232,7 @@ export const ReportsDashboard: React.FC = () => {
                   loading={loading}
                   disabled={!periodReport}
                 >
-                  � Exportar Reporte Completo
+                  📄 Descargar Reporte PDF
                 </Button>
                 <Button
                   variant="outline"

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
 import "./Login.css";
 import logo from "../../assets/logo-pets-mapo.png";
 
@@ -11,6 +12,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const from = location.state?.from?.pathname || "/products";
 
@@ -60,7 +62,15 @@ export default function Login() {
             {loading ? "Iniciando sesión..." : "Entrar"}
           </button>
           
-
+          <div style={{ textAlign: "center", marginTop: "12px" }}>
+            <button 
+              type="button"
+              onClick={() => setShowPasswordModal(true)}
+              className="forgot-password-link"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
           
           <div style={{ textAlign: "center", marginTop: "12px" }}>
             ¿No tienes cuenta? <Link to="/signup" style={{ color: "var(--mapo-blue-dark)", fontWeight: "bold" }}>Regístrate aquí</Link>
@@ -68,6 +78,12 @@ export default function Login() {
         </form>
         <img src={logo} alt="MAPO logo" className="login-logo" />
       </div>
+
+      <ChangePasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        userEmail={email}
+      />
     </div>
   );
 }

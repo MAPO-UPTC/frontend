@@ -195,3 +195,18 @@
   background: #4285F4;
   color: #fff;
 }
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: var(--mapo-blue-light);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.forgot-password-link:hover {
+  color: var(--mapo-orange);
+}

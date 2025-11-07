@@ -15,6 +15,7 @@ export const SalesPage: React.FC = () => {
   const { setCustomer } = useMAPOStore();
   const [selectedCustomer, setSelectedCustomer] = useState<PersonAPIResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [lastSale, setLastSale] = useState<any>(null);
 
   const handleCustomerSelect = (customer: PersonAPIResponse | null) => {
     setSelectedCustomer(customer);
@@ -66,6 +67,11 @@ export const SalesPage: React.FC = () => {
     }
   };
 
+  const handleClearSale = () => {
+    setLastSale(null);
+    setSelectedCustomer(null);
+  };
+
   const handleProcessSale = async () => {
     if (!selectedCustomer) {
       alert('Debe seleccionar un cliente');
@@ -82,8 +88,12 @@ export const SalesPage: React.FC = () => {
     try {
       const sale = await processSale();
       if (sale) {
-        // Limpiar el cliente seleccionado
-        setSelectedCustomer(null);
+        // Guardar la venta para poder imprimirla
+        setLastSale({
+          ...sale,
+          customerName: selectedCustomer?.full_name || `${selectedCustomer?.name} ${selectedCustomer?.last_name}`,
+          customerDocument: `${selectedCustomer?.document_type}: ${selectedCustomer?.document_number}`
+        });
         
         // Mostrar confirmación detallada
         const saleDate = new Date(sale.sale_date).toLocaleString('es-CO', {
@@ -105,10 +115,13 @@ export const SalesPage: React.FC = () => {
         console.log('🔄 Recargando productos para actualizar stock...');
         await loadProducts();
         console.log('✅ Productos actualizados');
+        
+        // NO limpiar el cliente aquí para poder imprimir
       }
     } catch (error) {
       console.error('Error processing sale:', error);
       alert('❌ Error al procesar la venta. Por favor intenta de nuevo.');
+      setLastSale(null);
     } finally {
       setIsProcessing(false);
     }
@@ -183,6 +196,8 @@ export const SalesPage: React.FC = () => {
               onProcessSale={handleProcessSale}
               isProcessing={isProcessing}
               canProcess={summary.canProcess}
+              lastSale={lastSale}
+              onClearSale={handleClearSale}
             />
           </div>
         </div>

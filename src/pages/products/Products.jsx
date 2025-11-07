@@ -1,12 +1,16 @@
 import ProductCard from "../../components/ProductCard/ProductCard";
 import ProductFilters from "../../components/ProductFilters/ProductFilters";
-import PermissionGate from "../../components/PermissionGate/PermissionGate";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
 import { useProducts, useCategories, useProductFilters } from "../../hooks";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Entity, Action } from "../../constants";
 import "./Products.css";
 
 export default function Products() {
+  const { user, handleLogout } = useAuth();
+  const navigate = useNavigate();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   // Hooks personalizados para manejo de estado escalable
   // Estado de filtros
   const [filters, setFilters] = useState({
@@ -53,45 +57,53 @@ export default function Products() {
   return (
     <div className="products-container">
       <div className="products-header">
-        <h1 className="products-title">Nuestra Tienda</h1>
-        <p className="products-subtitle">Encuentra todo lo que tu mascota necesita</p>
-        {/* Debug Info - Solo visible para usuarios autenticados (comentar en producción) */}
+        <div className="header-content">
+          <div className="header-text">
+            <h1 className="products-title">🐾 Nuestra Tienda</h1>
+            <p className="products-subtitle">Encuentra todo lo que tu mascota necesita</p>
+          </div>
+          
+          <div className="header-actions">
+            {user ? (
+              <div className="user-header-info">
+                <span className="welcome-text">Hola, {user.name || 'Usuario'}</span>
+                <button 
+                  className="btn-settings"
+                  onClick={() => setShowPasswordModal(true)}
+                  title="Cambiar Contraseña"
+                >
+                  ⚙️
+                </button>
+                <button 
+                  className="btn-logout"
+                  onClick={handleLogout}
+                  title="Cerrar Sesión"
+                >
+                  🚪 Cerrar Sesión
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="btn-login"
+                onClick={() => navigate('/login')}
+                title="Iniciar Sesión"
+              >
+                🔐 Iniciar Sesión
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
-      <PermissionGate
-        entity={Entity.PRODUCTS}
-        action={Action.READ}
-        fallback={
-          <div className="no-permission-message" style={{
-            textAlign: 'center',
-            padding: '40px 20px',
-            background: '#fff3cd',
-            borderRadius: '8px',
-            margin: '20px 0'
-          }}>
-            <h3>⚠️ Sin permisos para ver productos</h3>
-            <p>No tienes permisos suficientes para visualizar el catálogo de productos.</p>
-          </div>
-        }
-        showLoading={true}
-        loadingComponent={<div className="loading">Verificando permisos...</div>}
-      >
-        <ProductFilters
-          filters={filters}
-          categories={categories}
-          filterStats={filterStats}
-          onFilterChange={(name, value, event) => updateFilter(name, value, event)}
-          onClearFilters={clearAllFilters}
-        />
-      </PermissionGate>
+      <ProductFilters
+        filters={filters}
+        categories={categories}
+        filterStats={filterStats}
+        onFilterChange={(name, value, event) => updateFilter(name, value, event)}
+        onClearFilters={clearAllFilters}
+      />
 
-      <PermissionGate
-        entity={Entity.PRODUCTS}
-        action={Action.READ}
-        fallback={null}
-        showLoading={false}
-      >
-        <div className="products-grid">
+      <div className="products-grid">
           {/* Filtrar productos por nombre solo al presionar Enter */}
           {(() => {
             let productsToShow = products;
@@ -117,7 +129,12 @@ export default function Products() {
             }
           })()}
         </div>
-      </PermissionGate>
+
+      <ChangePasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        userEmail={user?.email}
+      />
     </div>
   );
 }

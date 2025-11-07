@@ -142,12 +142,14 @@ export const Navigation: React.FC = () => {
           </div>
           <div className="user-details">
             <span className="user-name">{user?.name || 'Usuario'}</span>
-            <span className="user-role">{user?.role || 'Sin rol'}</span>
+            {activeRole && (
+              <span className="user-role">{getRoleDisplayName(activeRole)}</span>
+            )}
           </div>
         </div>
 
-        {/* Role Selector */}
-        {availableRoles.length > 0 && (
+        {/* Role Selector - Solo mostrar si hay más de un rol disponible */}
+        {availableRoles.length > 1 && (
           <div className="nav-role-selector">
             <label>Rol Activo:</label>
             <div className="role-selector-wrapper">
