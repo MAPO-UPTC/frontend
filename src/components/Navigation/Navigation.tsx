@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import { Entity, Action, Role } from '../../constants';
@@ -13,6 +13,7 @@ interface NavigationItem {
   entity?: string;
   action?: string;
   requiresAuth?: boolean;
+  requiredRole?: string; // Rol específico requerido (opcional)
 }
 
 const navigationItems: NavigationItem[] = [
@@ -21,8 +22,9 @@ const navigationItems: NavigationItem[] = [
     label: 'Usuarios',
     icon: '👥',
     entity: Entity.USERS,
-    action: Action.READ,
-    requiresAuth: true
+    action: Action.UPDATE,
+    requiresAuth: true,
+    requiredRole: Role.SUPERADMIN // Solo SUPERADMIN puede gestionar usuarios
   },
   {
     path: '/products',
@@ -84,6 +86,7 @@ const navigationItems: NavigationItem[] = [
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
   const {
     availableRoles,
@@ -93,6 +96,16 @@ export const Navigation: React.FC = () => {
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
+  // Debug: Log cuando cambian los permisos o el rol
+  useEffect(() => {
+    console.log('🎯 Navigation - Estado actual:', {
+      user: user?.name,
+      activeRole,
+      availableRoles,
+      totalNavigationItems: navigationItems.length
+    });
+  }, [user, activeRole, availableRoles]);
+
   // Filtrar items del menú basado en permisos
   const filteredItems = navigationItems.filter(item => {
     // Si no requiere autenticación, mostrarlo siempre
@@ -101,12 +114,71 @@ export const Navigation: React.FC = () => {
     // Si requiere autenticación pero no hay usuario, ocultarlo
     if (!user) return false;
 
+    // Si requiere un rol específico, verificar que el usuario tenga ese rol
+    if (item.requiredRole) {
+      const hasRequiredRole = activeRole === item.requiredRole;
+      
+      // Debug log para items con rol requerido
+      if (item.label === 'Usuarios') {
+        console.log(`🔍 Verificando acceso a "${item.label}":`, {
+          requiredRole: item.requiredRole,
+          activeRole,
+          hasRequiredRole
+        });
+      }
+      
+      return hasRequiredRole;
+    }
+
     // Si no tiene entity definida, mostrarlo (es un item sin permisos específicos)
     if (!item.entity || !item.action) return true;
 
     // Verificar si el usuario tiene permiso para esta entity/action
-    return hasPermission(item.entity, item.action);
+    const hasAccess = hasPermission(item.entity, item.action);
+    
+    return hasAccess;
   });
+
+  // Debug: Log de items filtrados
+  useEffect(() => {
+    console.log(`📋 Items del menú filtrados: ${filteredItems.length}/${navigationItems.length}`, 
+      filteredItems.map(item => item.label)
+    );
+  }, [filteredItems]);
+
+  // Verificar permisos de la ruta actual cuando cambia el rol
+  useEffect(() => {
+    // No hacer nada si no hay usuario
+    if (!user) return;
+    
+    const currentRoute = navigationItems.find(item => item.path === location.pathname);
+    
+    // No hacer nada si no se encuentra la ruta
+    if (!currentRoute) return;
+    
+    let shouldRedirect = false;
+    let reason = '';
+    
+    // Verificar si requiere un rol específico
+    if (currentRoute.requiredRole) {
+      if (activeRole !== currentRoute.requiredRole) {
+        shouldRedirect = true;
+        reason = `Rol requerido: ${currentRoute.requiredRole}, rol actual: ${activeRole}`;
+      }
+    }
+    // Si no requiere rol específico, verificar permisos entity/action
+    else if (currentRoute.entity && currentRoute.action) {
+      if (!hasPermission(currentRoute.entity, currentRoute.action)) {
+        shouldRedirect = true;
+        reason = `Sin permiso para ${currentRoute.entity}.${currentRoute.action}`;
+      }
+    }
+    
+    if (shouldRedirect) {
+      console.log(`🚫 Acceso denegado a "${currentRoute.label}": ${reason}. Redirigiendo a productos...`);
+      navigate('/products', { replace: true });
+    }
+  }, [activeRole, location.pathname, hasPermission, navigate, user]);
 
   const handleRoleChange = (role: string) => {
     switchRole(role);

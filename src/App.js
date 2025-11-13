@@ -3,6 +3,8 @@ import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { useAuth, AuthProvider } from "./context/AuthContext";
 import { Navigation } from "./components/Navigation/Navigation";
 import { NotificationToast } from "./components/UI";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Entity, Action } from "./constants";
 
 // Pages
 import Login from "./pages/login/Login";
@@ -72,12 +74,14 @@ function AnimatedRoutes() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               
-              {/* Protected Routes */}
+              {/* Protected Routes with Permission Checks */}
               <Route
                 path="/sales"
                 element={
                   <PrivateRoute>
-                    <SalesPage />
+                    <ProtectedRoute entity={Entity.SALES} action={Action.CREATE}>
+                      <SalesPage />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -85,7 +89,9 @@ function AnimatedRoutes() {
                 path="/sales/history"
                 element={
                   <PrivateRoute>
-                    <SalesHistory />
+                    <ProtectedRoute entity={Entity.SALES} action={Action.READ}>
+                      <SalesHistory />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -93,7 +99,9 @@ function AnimatedRoutes() {
                 path="/sales/:id/details"
                 element={
                   <PrivateRoute>
-                    <SaleDetails />
+                    <ProtectedRoute entity={Entity.SALES} action={Action.READ}>
+                      <SaleDetails />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -101,7 +109,9 @@ function AnimatedRoutes() {
                 path="/inventory"
                 element={
                   <PrivateRoute>
-                    <Inventory />
+                    <ProtectedRoute entity={Entity.INVENTORY} action={Action.READ}>
+                      <Inventory />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -109,7 +119,9 @@ function AnimatedRoutes() {
                 path="/reports"
                 element={
                   <PrivateRoute>
-                    <Reports />
+                    <ProtectedRoute entity={Entity.REPORTS} action={Action.READ}>
+                      <Reports />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -121,7 +133,9 @@ function AnimatedRoutes() {
                 path="/create-product"
                 element={
                   <PrivateRoute>
-                    <CreateProduct />
+                    <ProtectedRoute entity={Entity.PRODUCTS} action={Action.CREATE}>
+                      <CreateProduct />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -137,7 +151,9 @@ function AnimatedRoutes() {
                 path="/users"
                 element={
                   <PrivateRoute>
-                    <UserManagementPage />
+                    <ProtectedRoute entity={Entity.USERS} action={Action.UPDATE}>
+                      <UserManagementPage />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -145,7 +161,9 @@ function AnimatedRoutes() {
                 path="/suppliers"
                 element={
                   <PrivateRoute>
-                    <SuppliersPage />
+                    <ProtectedRoute entity={Entity.SUPPLIERS} action={Action.READ}>
+                      <SuppliersPage />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -153,7 +171,9 @@ function AnimatedRoutes() {
                 path="/returns"
                 element={
                   <PrivateRoute>
-                    <Returns />
+                    <ProtectedRoute entity={Entity.RETURNS} action={Action.READ}>
+                      <Returns />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
