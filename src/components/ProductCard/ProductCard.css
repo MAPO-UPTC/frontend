@@ -111,47 +111,32 @@
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
-  /* Imagen de producto con tamaño fijo para todas las cartas */
-  /* Contenedor de imagen con tamaño fijo y centrado */
-  .product-image-container {
-    position: relative;
-    width: 100%;
-    height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border-radius: 8px 8px 0 0;
-    overflow: hidden;
-  }
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  /* Imagen de producto: tamaño fijo, centrada, sin deformar */
-  .product-image {
-    width: 140px;
-    height: 140px;
-    object-fit: contain;
-    border-radius: 8px 8px 0 0;
-    background: #fff;
-    display: block;
-    margin: 0 auto;
-  }
+/* Stock disponible - Verde */
+.stock-badge.in-stock {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  border: 1px solid #22C55E;
+}
 
-  /* Placeholder igual tamaño que imagen */
-  .product-image-placeholder {
-    width: 140px;
-    height: 140px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #f5f5f5;
-    color: #bbb;
-    font-size: 32px;
-    border-radius: 8px 8px 0 0;
-    margin: 0 auto;
-  }
-  color: #D32F2F;
-  border: 1px solid #F44336;
+/* Pocas unidades - Amarillo/Naranja */
+.stock-badge.low-stock {
+  background: rgba(251, 191, 36, 0.9);
+  color: #78350F;
+  border: 1px solid #FBB F24;
+}
+
+/* Sin stock - Rojo */
+.stock-badge.out-of-stock {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: 1px solid #EF4444;
 }
 
 .product-info {
