@@ -103,13 +103,13 @@ export const SalesPage: React.FC = () => {
         
         const totalAmount = sale.total_amount || sale.total || 0;
         
-        alert(
-          `✅ ¡Venta Exitosa!\n\n` +
-          `ID: ${sale.id}\n` +  // ✅ Usar sale.id en lugar de sale_code
-          `Total: ${totalAmount.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}\n` +  // ✅ total_amount
-          `Fecha: ${saleDate}\n` +
-          `Items: ${sale.items?.length || sale.sale_details?.length || cart.items.length}`  // ✅ items o sale_details
-        );
+        // Mostrar información de la venta en consola
+        console.log('✅ Venta procesada exitosamente:', {
+          id: sale.id,
+          total: totalAmount,
+          fecha: saleDate,
+          items: sale.items?.length || sale.sale_details?.length || cart.items.length
+        });
         
         // Recargar productos para actualizar stock
         console.log('🔄 Recargando productos para actualizar stock...');
@@ -120,7 +120,7 @@ export const SalesPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error processing sale:', error);
-      alert('❌ Error al procesar la venta. Por favor intenta de nuevo.');
+      // La notificación de error ya se muestra en el store
       setLastSale(null);
     } finally {
       setIsProcessing(false);
