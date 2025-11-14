@@ -194,12 +194,6 @@ export const Navigation: React.FC = () => {
     return roleNames[role] || role;
   };
 
-  const handleWhatsAppClick = () => {
-    const phoneNumber = '573135321766';
-    const message = encodeURIComponent('Hola, tengo una consulta sobre los productos de MAPO.');
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-  };
-
   return (
     <nav className="navigation">
       <div className="nav-header">
@@ -285,17 +279,6 @@ export const Navigation: React.FC = () => {
       </div>
 
       <div className="nav-footer">
-        {/* WhatsApp Button */}
-        <button
-          onClick={handleWhatsAppClick}
-          className="whatsapp-button"
-          type="button"
-          title="Contactar por WhatsApp"
-        >
-          <span className="whatsapp-icon">💬</span>
-          <span className="whatsapp-label">Contactar</span>
-        </button>
-
         <button
           onClick={handleLogout}
           className="logout-button"

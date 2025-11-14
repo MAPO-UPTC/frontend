@@ -335,22 +335,21 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             />
           </div>
 
-          <div className="category-filters">
-            <button
-              className={`category-btn ${selectedCategory === null ? 'active' : ''}`}
-              onClick={() => handleCategorySelect(null)}
+          <div className="category-filter-dropdown">
+            <label htmlFor="category-select">Filtrar por categoría:</label>
+            <select
+              id="category-select"
+              value={selectedCategory || ''}
+              onChange={(e) => handleCategorySelect(e.target.value || null)}
+              className="category-select"
             >
-              Todas las Categorías
-            </button>
-            {categories.map(category => (
-              <button
-                key={category.id}
-                className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
-                onClick={() => handleCategorySelect(category.id)}
-              >
-                {category.name}
-              </button>
-            ))}
+              <option value="">Todas las Categorías</option>
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

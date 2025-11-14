@@ -432,40 +432,48 @@
   .navigation {
     width: 100%;
     height: auto;
-    position: relative;
-    flex-direction: row;
-    padding: 0.75rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto;
+    align-items: center;
+    padding: 12px;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
   }
   
   .nav-header {
     padding: 0;
     border: none;
-    margin-right: auto;
+    margin: 0;
+    grid-column: 1;
   }
   
   .nav-logo {
     margin-bottom: 0;
+    gap: 8px;
+  }
+
+  .logo-image {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-text {
+    font-size: 1.25rem;
   }
   
   .user-info {
     display: none;
   }
 
-  /* Selector de roles compacto en tablet */
   .nav-role-selector {
-    margin: 0;
-    padding: 0.5rem;
-    max-width: 200px;
-  }
-
-  .nav-role-selector label {
-    font-size: 0.7rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .role-selector-button {
-    padding: 0.5rem;
-    font-size: 0.85rem;
+    display: none;
   }
   
   .nav-menu {
@@ -473,49 +481,84 @@
     flex-direction: row;
     padding: 0;
     overflow-x: auto;
-    flex: none;
+    overflow-y: hidden;
+    grid-column: 2;
+    gap: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
   }
   
   .nav-item {
-    padding: 0.5rem 0.75rem;
+    padding: 8px 12px;
     border-left: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
     white-space: nowrap;
+    border-radius: 8px 8px 0 0;
+    min-width: auto;
+    flex-shrink: 0;
   }
   
   .nav-item:hover {
     border-left: none;
-    border-bottom-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
   }
   
   .nav-item.active {
     border-left: none;
     border-bottom-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.2);
+  }
+
+  .nav-icon {
+    font-size: 1.25rem;
+  }
+
+  .nav-label {
+    font-size: 0.85rem;
   }
   
   .nav-footer {
     padding: 0;
     border: none;
+    grid-column: 3;
+    display: flex;
     flex-direction: row;
-    gap: 0.5rem;
-  }
-
-  .whatsapp-button {
-    width: auto;
-    padding: 0.5rem 0.75rem;
-    flex: 1;
+    gap: 8px;
   }
   
   .logout-button {
     width: auto;
-    padding: 0.5rem 0.75rem;
-    flex: 1;
+    padding: 8px 16px;
+    border-radius: 8px;
+  }
+
+  .logout-button .nav-icon {
+    font-size: 1.25rem;
+  }
+
+  .logout-button .nav-label {
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
   .navigation {
-    padding: 0.5rem;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .logo-text {
+    display: none;
+  }
+
+  .logo-image {
+    width: 32px;
+    height: 32px;
   }
   
   .nav-label {
@@ -523,29 +566,27 @@
   }
   
   .nav-item {
-    padding: 0.5rem;
+    padding: 8px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .whatsapp-button {
-    padding: 0.5rem;
+  .nav-icon {
+    font-size: 1.4rem;
   }
-  
+
   .logout-button {
-    padding: 0.5rem;
+    padding: 8px;
+    min-width: 44px;
   }
 
-  .whatsapp-button .nav-label,
   .logout-button .nav-label {
     display: none;
   }
 
-  .whatsapp-button .nav-icon,
   .logout-button .nav-icon {
-    font-size: 1.5rem;
-  }
-
-  /* Ocultar selector de roles en móvil muy pequeño */
-  .nav-role-selector {
-    display: none;
+    font-size: 1.4rem;
   }
 }
