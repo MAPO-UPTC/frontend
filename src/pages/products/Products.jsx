@@ -4,13 +4,15 @@ import ChangePasswordModal from "../../components/ChangePasswordModal";
 import { useProducts, useCategories, useProductFilters } from "../../hooks";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "./Products.css";
 
 export default function Products() {
   const { user, handleLogout } = useAuth();
   const navigate = useNavigate();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const observer = useRef();
+  
   // Hooks personalizados para manejo de estado escalable
   // Estado de filtros
   const [filters, setFilters] = useState({
@@ -18,8 +20,15 @@ export default function Products() {
     search: ""
   });
   const { categories } = useCategories();
-  // useProducts hook con recarga por categoría
-  const { products, actions: { fetchProducts } } = useProducts();
+  
+  // useProducts hook con paginación
+  const { 
+    products, 
+    hasMore, 
+    loading,
+    actions: { fetchProducts, loadMore } 
+  } = useProducts();
+  
   // Hook de filtros frontend (solo búsqueda)
   const { filterStats } = useProductFilters(products, filters);
 
@@ -36,20 +45,47 @@ export default function Products() {
     };
   });
 
-  // Cuando cambia la categoría, recargar productos desde backend
+  // Cargar productos inicialmente solo una vez
   useEffect(() => {
-    // Solo filtrar por categoría en el backend
+    fetchProducts({}, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Cuando cambian los filtros, recargar desde la página 1
+  useEffect(() => {
     const backendFilters = {};
     if (filters.category) backendFilters.category = filters.category;
-    fetchProducts(backendFilters);
-  }, [filters.category, fetchProducts]);
+    if (filters.search) backendFilters.search = filters.search;
+    
+    // Solo recargar si hay filtros aplicados
+    if (filters.category || filters.search) {
+      fetchProducts(backendFilters, true); // true = reset página
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.category, filters.search]); // Solo cuando cambian los filtros
+
+  // Intersection Observer para detectar cuándo se llega al final
+  const lastProductRef = useCallback(node => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        console.log('📦 Cargando más productos...');
+        loadMore();
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore, loadMore]);
 
   // Handlers para filtros
-  // Solo actualiza el filtro de búsqueda al presionar Enter
+  // Actualiza el filtro de búsqueda al presionar Enter
   const updateFilter = (name, value, event) => {
     if (name === "search" && event && event.key !== "Enter") return;
     setFilters(prev => ({ ...prev, [name]: value }));
   };
+  
   const clearAllFilters = () => {
     setFilters({ category: "", search: "" });
   };
@@ -117,31 +153,51 @@ export default function Products() {
       />
 
       <div className="products-grid">
-          {/* Filtrar productos por nombre solo al presionar Enter */}
-          {(() => {
-            let productsToShow = enrichedProducts;
-            if (filters.search) {
-              productsToShow = enrichedProducts.filter(product =>
-                product.name?.toLowerCase().includes(filters.search.toLowerCase())
+        {enrichedProducts.length > 0 ? (
+          enrichedProducts.map((product, index) => {
+            // Agregar ref al último elemento para detectar scroll
+            if (enrichedProducts.length === index + 1) {
+              return (
+                <div ref={lastProductRef} key={product.id}>
+                  <ProductCard 
+                    product={product} 
+                    onAddToCart={handleAddToCart}
+                  />
+                </div>
               );
             }
-            if (!Array.isArray(productsToShow)) {
-              console.error('[Products] ERROR: productsToShow no es un array:', productsToShow);
-              return <div className="error">Error: Los datos de productos no tienen el formato correcto.</div>;
-            }
-            if (productsToShow.length > 0) {
-              return productsToShow.map(product => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
-                  onAddToCart={handleAddToCart}
-                />
-              ));
-            } else {
-              return <div className="no-products">No se encontraron productos que coincidan con los filtros.</div>;
-            }
-          })()}
-        </div>
+            
+            return (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onAddToCart={handleAddToCart}
+              />
+            );
+          })
+        ) : (
+          !loading && (
+            <div className="no-products">
+              No se encontraron productos que coincidan con los filtros.
+            </div>
+          )
+        )}
+        
+        {/* Indicador de carga */}
+        {loading && (
+          <div className="loading-more">
+            <div className="spinner"></div>
+            <p>Cargando productos...</p>
+          </div>
+        )}
+        
+        {/* Mensaje de fin */}
+        {!hasMore && products.length > 0 && (
+          <div className="end-of-products">
+            <p>🐾 Has visto todos los productos disponibles</p>
+          </div>
+        )}
+      </div>
 
       {/* Botón flotante de WhatsApp */}
       <a

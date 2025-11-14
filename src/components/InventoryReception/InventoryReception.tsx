@@ -122,7 +122,18 @@ const InventoryReception: React.FC<InventoryReceptionProps> = ({ onSuccess, onCa
   const loadProducts = async () => {
     try {
       const data = await apiClient.getAllProducts();
-      setProducts(data);
+      
+      // Manejar tanto el formato de paginación como el array directo
+      if (data && typeof data === 'object' && 'products' in data && Array.isArray(data.products)) {
+        // Formato con paginación: { products: [], pagination: {} }
+        setProducts(data.products);
+      } else if (Array.isArray(data)) {
+        // Formato array directo
+        setProducts(data);
+      } else {
+        console.error('Formato de respuesta no reconocido:', data);
+        setProducts([]);
+      }
     } catch (err) {
       console.error('Error loading products:', err);
       setError('Error al cargar productos');

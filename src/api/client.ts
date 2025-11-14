@@ -159,8 +159,9 @@ export class MAPOAPIClient {
     return this.request<Product[]>(`/categories/${categoryId}/products`);
   }
 
-  async getAllProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products/');
+  async getAllProducts(page: number = 1, pageSize: number = 20): Promise<Product[] | { products: Product[], pagination: any }> {
+    const params = `?page=${page}&page_size=${pageSize}`;
+    return this.request<Product[] | { products: Product[], pagination: any }>(`/products/${params}`);
   }
 
   async getProductById(productId: UUID, includeInactive: boolean = false): Promise<Product> {

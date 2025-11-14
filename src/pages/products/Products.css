@@ -508,3 +508,59 @@
     height: 28px;
   }
 }
+
+/* === INFINITE SCROLL === */
+
+/* Loading indicator */
+.loading-more {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+}
+
+.loading-more .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--mapo-gray-medium);
+  border-top: 4px solid var(--mapo-orange);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-more p {
+  color: var(--mapo-blue-dark);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* End of products message */
+.end-of-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem 1rem;
+  margin: 2rem 0;
+  background: linear-gradient(135deg, var(--mapo-gray-light) 0%, #FFF 100%);
+  border-radius: 12px;
+  border: 2px dashed var(--mapo-gray-medium);
+}
+
+.end-of-products p {
+  color: var(--mapo-blue-dark);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* No products message for infinite scroll */
+.no-products {
+  grid-column: 1 / -1;
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useInventory } from '../../hooks/useInventory';
 import { Button } from '../UI';
 import { Product, ProductPresentation, UUID } from '../../types';
@@ -23,9 +23,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     categories,
     products,
     loading,
+    hasMore,
     loadCategoriesData,
     loadProducts,
-    loadProductsForCategory
+    loadProductsForCategory,
+    loadMore
   } = useInventory();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -88,12 +90,37 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     loadProducts();
   }, [loadCategoriesData, loadProducts]);
 
+  // Debug: Log para ver el estado de products
+  useEffect(() => {
+    console.log('📦 InventoryDashboard - products:', {
+      isArray: Array.isArray(products),
+      length: Array.isArray(products) ? products.length : 'N/A',
+      products: products
+    });
+  }, [products]);
+
+  // Intersection Observer para infinite scroll
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastProductRef = useCallback((node: HTMLDivElement | null) => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        console.log('📜 Cargando más productos en inventario...');
+        loadMore();
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore, loadMore]);
+
   const handleCategorySelect = async (categoryId: string | null) => {
     setSelectedCategory(categoryId);
     if (categoryId) {
       await loadProductsForCategory(categoryId);
     } else {
-      await loadProducts();
+      await loadProducts(true); // Reset page
     }
   };
 
@@ -227,16 +254,23 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     setShowReturnsModal(false);
   };
 
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = Array.isArray(products) ? products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) : [];
+
+  // Debug: Log de productos filtrados
+  console.log('🔍 Filtered products:', {
+    total: Array.isArray(products) ? products.length : 'N/A',
+    filtered: filteredProducts.length,
+    searchTerm
+  });
 
   const stats = {
-    totalProducts: products.length,
-    availableCount: products.filter(p => p.presentations.some(pr => (pr.stock_available || 0) > 0)).length,
-    lowStockCount: products.filter(p => p.presentations.some(pr => (pr.stock_available || 0) < 5 && (pr.stock_available || 0) > 0)).length,
-    outOfStockCount: products.filter(p => p.presentations.every(pr => (pr.stock_available || 0) === 0)).length
+    totalProducts: Array.isArray(products) ? products.length : 0,
+    availableCount: Array.isArray(products) ? products.filter(p => p.presentations.some(pr => (pr.stock_available || 0) > 0)).length : 0,
+    lowStockCount: Array.isArray(products) ? products.filter(p => p.presentations.some(pr => (pr.stock_available || 0) < 5 && (pr.stock_available || 0) > 0)).length : 0,
+    outOfStockCount: Array.isArray(products) ? products.filter(p => p.presentations.every(pr => (pr.stock_available || 0) === 0)).length : 0
   };
 
   return (
@@ -321,7 +355,7 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
 
         <div className="products-grid">
-          {loading ? (
+          {loading && filteredProducts.length === 0 ? (
             <div className="loading-state">
               <p>Cargando productos...</p>
             </div>
@@ -333,12 +367,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
               </Button>
             </div>
           ) : (
-            filteredProducts.map(product => (
-              <div
-                key={product.id}
-                className="product-card"
-                onClick={() => onProductSelect?.(product)}
-              >
+            <>
+              {filteredProducts.map((product, index) => {
+                const isLastProduct = filteredProducts.length === index + 1;
+                return (
+                  <div
+                    key={product.id}
+                    ref={isLastProduct ? lastProductRef : null}
+                    className="product-card"
+                    onClick={() => onProductSelect?.(product)}
+                  >
                 <div className="product-header">
                   <h4>{product.name}</h4>
                   <span className="category-badge">
@@ -392,7 +430,16 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                   </Button>
                 </div>
               </div>
-            ))
+                );
+              })}
+              
+              {/* Mensaje de fin de productos */}
+              {!hasMore && filteredProducts.length > 0 && (
+                <div className="end-of-products">
+                  <p>✓ Todos los productos cargados</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

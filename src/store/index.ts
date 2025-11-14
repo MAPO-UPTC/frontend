@@ -50,7 +50,7 @@ interface MAPOStore extends AppState {
   // ======= INVENTORY ACTIONS =======
   loadCategories: () => Promise<void>;
   loadProductsByCategory: (categoryId: UUID) => Promise<void>;
-  loadAllProducts: () => Promise<void>;
+  loadAllProducts: (page?: number, pageSize?: number, append?: boolean) => Promise<{ products: any[], pagination: any } | void>;
   checkStock: (presentationId: UUID) => Promise<StockInfo | null>;
   searchProducts: (query: string) => Promise<void>;
   
@@ -640,7 +640,20 @@ export const useMAPOStore = create<MAPOStore>()(
           }));
 
           // Llamar a la API para obtener productos de una categoría
-          const products = await apiClient.getProductsByCategory(categoryId);
+          const response = await apiClient.getProductsByCategory(categoryId);
+          
+          // Manejar tanto el formato de paginación como el array directo
+          let products: any[] = [];
+          if (response && typeof response === 'object' && 'products' in response && Array.isArray(response.products)) {
+            // Formato con paginación: { products: [], pagination: {} }
+            products = response.products;
+          } else if (Array.isArray(response)) {
+            // Formato array directo
+            products = response;
+          } else {
+            console.error('❌ Formato de respuesta no reconocido en loadProductsByCategory:', response);
+            products = [];
+          }
           
           set((state) => ({
             inventory: {
@@ -668,22 +681,43 @@ export const useMAPOStore = create<MAPOStore>()(
         }
       },
 
-      loadAllProducts: async () => {
+      loadAllProducts: async (page = 1, pageSize = 20, append = false) => {
         try {
-          set((state) => ({
-            inventory: {
-              ...state.inventory,
-              loading: true
-            }
-          }));
+          // Solo mostrar loading en la primera carga, no cuando se agregan más productos
+          if (!append) {
+            set((state) => ({
+              inventory: {
+                ...state.inventory,
+                loading: true
+              }
+            }));
+          }
 
-          // Llamar a la API para obtener todos los productos
-          const products = await apiClient.getAllProducts();
+          // Llamar a la API para obtener productos con paginación
+          const response = await apiClient.getAllProducts(page, pageSize);
+          
+          // Manejar tanto el formato de paginación como el array directo
+          let products: any[] = [];
+          let paginationData: any = null;
+          
+          if (response && typeof response === 'object' && 'products' in response && Array.isArray(response.products)) {
+            // Formato con paginación: { products: [], pagination: {} }
+            products = response.products;
+            paginationData = response.pagination;
+            console.log('✅ Formato de paginación detectado en store');
+          } else if (Array.isArray(response)) {
+            // Formato array directo
+            products = response;
+            console.log('✅ Formato array directo detectado en store');
+          } else {
+            console.error('❌ Formato de respuesta no reconocido:', response);
+            products = [];
+          }
           
           set((state) => ({
             inventory: {
               ...state.inventory,
-              products: products,
+              products: append ? [...state.inventory.products, ...products] : products,
               loading: false
             }
           }));
@@ -691,12 +725,18 @@ export const useMAPOStore = create<MAPOStore>()(
           // DEBUG: Mostrar los productos cargados
           console.log('🔄 loadAllProducts - Productos cargados desde API:', {
             totalProducts: products.length,
+            append,
+            page,
+            pageSize,
             products: products.map(p => ({
               id: p.id,
               name: p.name,
               presentations: p.presentations?.length || 0
             }))
           });
+          
+          // Devolver los datos con paginación
+          return { products, pagination: paginationData };
         } catch (error) {
           console.warn('⚠️ No se pudieron cargar productos desde la API, usando datos locales');
           console.error('Error loading products:', error);
@@ -707,6 +747,7 @@ export const useMAPOStore = create<MAPOStore>()(
               loading: false
             }
           }));
+          return { products: [], pagination: null };
         }
       },
 

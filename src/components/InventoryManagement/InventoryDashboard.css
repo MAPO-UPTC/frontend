@@ -361,3 +361,47 @@
     align-self: flex-start;
   }
 }
+
+/* Estilos para infinite scroll */
+.loading-more {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.loading-more .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #0066cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+.loading-more p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.end-of-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.end-of-products p {
+  margin: 0;
+  font-size: 14px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
