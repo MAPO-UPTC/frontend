@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../UI';
 import axios from '../../api/axios';
 import { ProductReturnsModal } from '../ProductReturns';
@@ -46,6 +46,11 @@ export const ReturnsDashboard: React.FC = () => {
     try {
       const response = await axios.get('/returns/');
       setReturns(response.data || []);
+      
+      // Debug: Ver qué estados están llegando
+      if (response.data && response.data.length > 0) {
+        console.log('📊 Estados de devoluciones:', response.data.map((r: any) => r.status));
+      }
     } catch (err) {
       console.error('Error al cargar devoluciones:', err);
     } finally {
@@ -61,6 +66,48 @@ export const ReturnsDashboard: React.FC = () => {
       console.error('Error al cargar estadísticas:', err);
     }
   };
+
+  // Calcular estadísticas localmente usando useMemo para optimizar
+  const displayStatistics = useMemo((): ReturnStatistics => {
+    // Si hay estadísticas de la API, transformarlas al formato correcto
+    if (statistics) {
+      console.log('📊 Usando estadísticas de la API:', statistics);
+      
+      // La API devuelve una estructura diferente, necesitamos transformarla
+      const apiStats = statistics as any;
+      
+      return {
+        total_returns: apiStats.total_returns || 0,
+        pending_returns: apiStats.returns_by_status?.pending || 0,
+        processed_returns: (apiStats.returns_by_status?.approved || 0) + (apiStats.returns_by_status?.processed || 0),
+        rejected_returns: apiStats.returns_by_status?.rejected || 0,
+        total_items_returned: apiStats.total_items_returned || 0
+      };
+    }
+
+    // Calcular desde los datos locales
+    // Los estados pueden venir como: PENDING, PENDIENTE, PROCESSED, APPROVED, REJECTED, etc.
+    const normalizeStatus = (status: string): string => {
+      const statusLower = status.toLowerCase();
+      if (statusLower === 'pendiente' || statusLower === 'pending') return 'pending';
+      if (statusLower === 'procesada' || statusLower === 'processed' || statusLower === 'approved') return 'processed';
+      if (statusLower === 'rechazada' || statusLower === 'rejected') return 'rejected';
+      return statusLower;
+    };
+
+    const calculatedStats = {
+      total_returns: returns.length || 0,
+      pending_returns: returns.filter(r => normalizeStatus(r.status) === 'pending').length || 0,
+      processed_returns: returns.filter(r => normalizeStatus(r.status) === 'processed').length || 0,
+      rejected_returns: returns.filter(r => normalizeStatus(r.status) === 'rejected').length || 0,
+      total_items_returned: returns.reduce((sum, r) => sum + (r.total_items || 0), 0) || 0
+    };
+
+    console.log('📊 Estadísticas calculadas localmente:', calculatedStats);
+    console.log('📦 Returns data:', returns.map(r => ({ status: r.status, items: r.total_items })));
+    
+    return calculatedStats;
+  }, [returns, statistics]);
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
@@ -79,29 +126,31 @@ export const ReturnsDashboard: React.FC = () => {
   };
 
   const getStatusBadgeClass = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'status-pending';
-      case 'processed':
-        return 'status-processed';
-      case 'rejected':
-        return 'status-rejected';
-      default:
-        return 'status-unknown';
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'pendiente' || statusLower === 'pending') {
+      return 'status-pending';
     }
+    if (statusLower === 'procesada' || statusLower === 'processed' || statusLower === 'approved') {
+      return 'status-processed';
+    }
+    if (statusLower === 'rechazada' || statusLower === 'rejected') {
+      return 'status-rejected';
+    }
+    return 'status-unknown';
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Pendiente';
-      case 'processed':
-        return 'Procesada';
-      case 'rejected':
-        return 'Rechazada';
-      default:
-        return status;
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'pendiente' || statusLower === 'pending') {
+      return 'Pendiente';
     }
+    if (statusLower === 'procesada' || statusLower === 'processed' || statusLower === 'approved') {
+      return 'Procesada';
+    }
+    if (statusLower === 'rechazada' || statusLower === 'rejected') {
+      return 'Rechazada';
+    }
+    return status;
   };
 
   const filteredReturns = returns.filter(ret => {
@@ -111,7 +160,16 @@ export const ReturnsDashboard: React.FC = () => {
       ret.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ret.reason.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || ret.status.toLowerCase() === statusFilter.toLowerCase();
+    // Normalizar estado para comparación
+    const normalizeStatusForFilter = (status: string): string => {
+      const statusLower = status.toLowerCase();
+      if (statusLower === 'pendiente') return 'pending';
+      if (statusLower === 'approved') return 'processed';
+      return statusLower;
+    };
+
+    const normalizedStatus = normalizeStatusForFilter(ret.status);
+    const matchesStatus = statusFilter === 'all' || normalizedStatus === statusFilter.toLowerCase();
 
     return matchesSearch && matchesStatus;
   });
@@ -126,30 +184,24 @@ export const ReturnsDashboard: React.FC = () => {
       </div>
 
       {/* Estadísticas */}
-      {statistics && (
-        <div className="returns-stats">
-          <div className="stat-card">
-            <h3>Total Devoluciones</h3>
-            <span className="stat-value">{statistics.total_returns}</span>
-          </div>
-          <div className="stat-card">
-            <h3>Pendientes</h3>
-            <span className="stat-value warning">{statistics.pending_returns}</span>
-          </div>
-          <div className="stat-card">
-            <h3>Procesadas</h3>
-            <span className="stat-value success">{statistics.processed_returns}</span>
-          </div>
-          <div className="stat-card">
-            <h3>Rechazadas</h3>
-            <span className="stat-value danger">{statistics.rejected_returns}</span>
-          </div>
-          <div className="stat-card">
-            <h3>Items Devueltos</h3>
-            <span className="stat-value">{statistics.total_items_returned}</span>
-          </div>
+      <div className="returns-stats">
+        <div className="stat-card">
+          <h3>Total Devoluciones</h3>
+          <span className="stat-value">{displayStatistics.total_returns}</span>
         </div>
-      )}
+        <div className="stat-card">
+          <h3>Pendientes</h3>
+          <span className="stat-value warning">{displayStatistics.pending_returns}</span>
+        </div>
+        <div className="stat-card">
+          <h3>Procesadas</h3>
+          <span className="stat-value success">{displayStatistics.processed_returns}</span>
+        </div>
+        <div className="stat-card">
+          <h3>Rechazadas</h3>
+          <span className="stat-value danger">{displayStatistics.rejected_returns}</span>
+        </div>
+      </div>
 
       {/* Filtros */}
       <div className="returns-filters">
