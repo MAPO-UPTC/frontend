@@ -1,52 +1,110 @@
 // src/hooks/useProducts.js
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { productService } from '../api';
+import api from '../api/axios';
 
 /**
- * Hook personalizado para manejar el estado de productos
- * Proporciona funcionalidades completas de CRUD y filtrado
+ * Hook personalizado para manejar el estado de productos con paginación infinita
+ * Proporciona funcionalidades completas de CRUD, filtrado y paginación
  */
 export const useProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({});
+  
+  // Estado de paginación
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [pagination, setPagination] = useState(null);
+  const loadingMoreRef = useRef(false);
 
   /**
-   * Cargar productos con filtros opcionales
+   * Cargar productos con filtros opcionales y paginación
    */
-  const fetchProducts = useCallback(async (newFilters = {}) => {
-    setLoading(true);
+  const fetchProducts = useCallback(async (newFilters = {}, resetPage = false) => {
+    // Evitar llamadas duplicadas
+    if (loadingMoreRef.current) return;
+    
+    const currentPage = resetPage ? 1 : page;
+    
+    setLoading(currentPage === 1);
+    loadingMoreRef.current = true;
     setError(null);
     
     try {
-      const data = await productService.getProducts({ ...filters, ...newFilters });
+      let data;
+      const categoryId = newFilters.category || filters.category;
       
-      console.log('[useProducts] API response type:', typeof data);
-      console.log('[useProducts] API response isArray:', Array.isArray(data));
-      console.log('[useProducts] API response value:', data);
+      // Construir parámetros de paginación
+      const params = {
+        page: currentPage,
+        page_size: 20,
+        ...(newFilters.search && { search: newFilters.search }),
+        ...(categoryId && { category_id: categoryId })
+      };
       
+      if (categoryId) {
+        // Usar endpoint /categories/:id/products (sin paginación por ahora)
+        const response = await api.get(`/categories/${categoryId}/products`);
+        data = response.data;
+      } else {
+        // Usar endpoint general con paginación
+        const response = await api.get('/products/', { params });
+        data = response.data;
+      }
       // Validación defensiva exhaustiva: asegurar que data es un array
       let productsArray = [];
-      if (Array.isArray(data)) {
+      let paginationData = null;
+      
+      console.log('📦 Respuesta del API:', data);
+      
+      // Verificar si la respuesta tiene el formato de paginación
+      if (data && data.products && Array.isArray(data.products)) {
+        productsArray = data.products;
+        paginationData = data.pagination;
+        console.log('✅ Formato de paginación detectado:', {
+          productos: productsArray.length,
+          pagina: paginationData?.page,
+          total: paginationData?.total_products,
+          hasNext: paginationData?.has_next
+        });
+      } else if (Array.isArray(data)) {
         productsArray = data;
+        console.log('⚠️ Formato sin paginación (array directo):', productsArray.length);
       } else if (data && data.data && Array.isArray(data.data)) {
         productsArray = data.data;
-      } else if (data && data.products && Array.isArray(data.products)) {
-        productsArray = data.products;
+        console.log('⚠️ Formato sin paginación (data.data):', productsArray.length);
       } else {
-        console.error('[useProducts] ERROR: Respuesta de API no tiene formato de array:', data);
+        console.error('[useProducts] ERROR: Respuesta de API no tiene formato esperado:', data);
         productsArray = [];
       }
       
-      console.log('[useProducts] productsArray final:', productsArray);
-      console.log('[useProducts] productsArray isArray:', Array.isArray(productsArray));
-      console.log('✅ Products loaded:', productsArray.length, 'items');
+      // Actualizar estado de paginación
+      if (paginationData) {
+        setPagination(paginationData);
+        setHasMore(paginationData.has_next);
+      } else {
+        // Sin paginación, no hay más páginas
+        setHasMore(false);
+      }
       
-      setProducts(productsArray);
+      // Si es la primera página o reset, reemplazar productos
+      // Si es carga de más, agregar a los existentes
+      if (resetPage || currentPage === 1) {
+        setProducts(productsArray);
+        setPage(2); // Próxima página será la 2
+      } else {
+        setProducts(prev => [...prev, ...productsArray]);
+        setPage(prev => prev + 1);
+      }
+      
     } catch (err) {
-      console.warn('Error fetching products from API, using mock data:', err);
+      console.error('Error fetching products from API:', err);
+      setError(err.message || 'Error al cargar productos');
       
+      // Solo usar mock data en la primera carga
+      if (currentPage === 1) {
       // Datos mock como fallback con nueva estructura
       const mockProducts = [
         {
@@ -202,10 +260,22 @@ export const useProducts = () => {
       console.log('[useProducts] Using mock data fallback');
       console.log('[useProducts] mockProducts isArray:', Array.isArray(mockProducts));
       setProducts(mockProducts);
+      setHasMore(false);
+      }
     } finally {
       setLoading(false);
+      loadingMoreRef.current = false;
     }
-  }, [filters]);
+  }, [filters, page]);
+
+  /**
+   * Cargar más productos (para infinite scroll)
+   */
+  const loadMore = useCallback(() => {
+    if (!loading && hasMore && !loadingMoreRef.current) {
+      fetchProducts(filters, false);
+    }
+  }, [loading, hasMore, filters, fetchProducts]);
 
   /**
    * Crear un nuevo producto
@@ -239,26 +309,29 @@ export const useProducts = () => {
    */
   const clearFilters = useCallback(() => {
     setFilters({});
+    setPage(1);
+    setProducts([]);
   }, []);
 
-  /**
-   * Cargar productos al montar el componente o cambiar filtros
-   */
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  // NO cargar automáticamente, dejar que el componente lo controle
+  // useEffect(() => {
+  //   fetchProducts();
+  // }, [fetchProducts]);
 
   return {
     products,
     loading,
     error,
     filters,
+    hasMore,
+    pagination,
     actions: {
       fetchProducts,
       createProduct,
       updateFilters,
       clearFilters,
-      refetch: () => fetchProducts(filters)
+      loadMore,
+      refetch: () => fetchProducts(filters, true)
     }
   };
 };

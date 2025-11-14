@@ -1,3 +1,20 @@
+/* Dropdown de presentaciones estilizado */
+.presentation-dropdown {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  background: #f5f5f5;
+  color: #222;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  transition: border-color 0.2s;
+}
+.presentation-dropdown:focus {
+  border-color: #007bff;
+  outline: none;
+}
 /* Paleta de colores MAPO */
 :root {
   --mapo-orange: #FA9739;
@@ -21,65 +38,31 @@
   white-space: nowrap;
 }
 
-.product-card {
-  background: var(--mapo-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  position: relative;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-}
-
-.product-card:hover,
-.product-card.hovered {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* En mobile, reducir efectos hover para mejor performance */
-@media (max-width: 768px) {
-  .product-card:hover,
-  .product-card.hovered {
-    transform: none;
-    box-shadow: var(--shadow-md);
-  }
-}
-
+/* Uniform info section sizing for product cards */
+/* Contenedor de imagen: área fija y centrada */
 .product-image-container {
   position: relative;
   width: 100%;
-  height: 160px; /* Más compacto para 2 columnas móvil */
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 8px 8px 0 0;
   overflow: hidden;
-  background: var(--mapo-gray-light);
 }
 
-/* Ajustar altura de imagen en diferentes pantallas */
-@media (min-width: 480px) {
-  .product-image-container {
-    height: 180px; /* Ligeramente más grande en móviles grandes */
-  }
-}
-
-@media (min-width: 768px) {
-  .product-image-container {
-    height: 220px;
-  }
-}
-
+/* Imagen ocupa todo el área disponible, sin deformar */
 .product-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+  object-fit: contain;
+  border-radius: 8px 8px 0 0;
+  background: #fff;
+  display: block;
 }
 
-.product-card:hover .product-image {
-  transform: scale(1.05);
-}
-
+/* Placeholder ocupa todo el área igual que la imagen */
 .product-image-placeholder {
   width: 100%;
   height: 100%;
@@ -87,9 +70,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--mapo-gray-light);
-  color: var(--mapo-blue-light);
-  gap: 8px;
+  background: #f5f5f5;
+  color: #bbb;
+  font-size: 32px;
+  border-radius: 8px 8px 0 0;
+}
+
+.product-image-placeholder {
+/* Placeholder de imagen con tamaño fijo igual a la imagen real */
+  width: 160px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #bbb;
+  font-size: 32px;
+  border-radius: 8px 8px 0 0;
+  margin: 0 auto;
 }
 
 .placeholder-icon {
@@ -112,26 +111,32 @@
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: bold;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Stock disponible - Verde */
 .stock-badge.in-stock {
-  background: #E6F7FF;
-  color: var(--mapo-blue-dark);
-  border: 1px solid var(--mapo-blue-light);
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  border: 1px solid #22C55E;
 }
 
+/* Pocas unidades - Amarillo/Naranja */
 .stock-badge.low-stock {
-  background: #FFF7E6;
-  color: var(--mapo-orange-dark);
-  border: 1px solid var(--mapo-orange);
+  background: rgba(251, 191, 36, 0.9);
+  color: #78350F;
+  border: 1px solid #FBB F24;
 }
 
+/* Sin stock - Rojo */
 .stock-badge.out-of-stock {
-  background: #FFE6E6;
-  color: #D32F2F;
-  border: 1px solid #F44336;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: 1px solid #EF4444;
 }
 
 .product-info {

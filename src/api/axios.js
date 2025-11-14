@@ -8,16 +8,18 @@ const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_BASE_URL || "https://142.93.187.32.nip.io";
   }
   
-  // En producción (Netlify): usar proxy relativo con prefijo /api/
+  // En producción (Netlify): SIEMPRE usar proxy relativo /api/
+  // Ignoramos REACT_APP_API_BASE_URL en producción
   return "/api";
 };
 
 const API_BASE_URL = getApiBaseUrl();
 
-console.log("🔗 API Configuration:", {
+console.log("🔗 API Configuration (v2):", {
   NODE_ENV: process.env.NODE_ENV,
   API_BASE_URL,
-  REACT_APP_API_BASE_URL: process.env.REACT_APP_API_BASE_URL
+  REACT_APP_API_BASE_URL: process.env.REACT_APP_API_BASE_URL,
+  timestamp: new Date().toISOString()
 });
 
 const api = axios.create({

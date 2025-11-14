@@ -49,7 +49,43 @@ export interface Role {
   description?: string;
 }
 
-// ======= TIPOS DE CLIENTES =======
+// ======= TIPOS DE GESTIÓN DE ROLES Y USUARIOS =======
+export type RoleName = 'USER' | 'ADMIN' | 'SUPERADMIN';
+
+export interface UserWithRoles {
+  user_id: UUID;
+  email: string;
+  name: string;
+  last_name: string;
+  document_type?: string;
+  document_number?: string;
+  roles: RoleName[];
+}
+
+export interface UsersListResponse {
+  users: UserWithRoles[];
+  total: number;
+}
+
+export interface AssignRoleRequest {
+  user_id: UUID;
+  role: RoleName;
+}
+
+export interface RemoveRoleRequest {
+  user_id: UUID;
+  role: RoleName;
+}
+
+export interface UpdateRolesRequest {
+  roles: RoleName[];
+}
+
+export interface RoleManagementResponse {
+  message: string;
+  user: UserWithRoles;
+}
+
 export interface Customer {
   id: UUID;
   name: string;
@@ -154,7 +190,10 @@ export interface Sale {
   user_id?: UUID; // Usuario que realizó la venta
   sale_date: Timestamp;
   total_amount?: number; // Para ventas individuales
-  total?: number; // Para historial de ventas
+  total?: number; // Total original de la venta
+  total_refunded?: number; // Total reembolsado por devoluciones
+  total_net?: number; // Total neto (total - total_refunded)
+  has_returns?: boolean; // Indica si la venta tiene devoluciones
   status: string;
   notes?: string;
   sale_details?: SaleDetail[]; // Algunos endpoints devuelven sale_details
@@ -164,11 +203,16 @@ export interface Sale {
 
 export interface SaleDetail {
   id: UUID;
-  product_id: UUID;
+  product_id?: UUID;
   product_name?: string; // Opcional, puede no venir en items
-  quantity: number;
+  presentation_id?: UUID;
+  presentation_name?: string; // Nombre de la presentación
+  quantity: number; // Cantidad original vendida
+  quantity_returned?: number; // Cantidad ya devuelta
+  quantity_net?: number; // Cantidad neta (quantity - quantity_returned)
   unit_price: number;
-  is_bulk_sale: boolean; // Indicador si es venta a granel
+  line_total?: number; // Total de la línea
+  is_bulk_sale?: boolean; // Indicador si es venta a granel
   subtotal?: number; // Calculado en frontend
   lot_detail_id?: UUID | null;
   bulk_conversion_id?: UUID | null;
@@ -230,6 +274,46 @@ export interface DailySalesSummary {
   average_sale_value: number;
 }
 
+// ======= TIPOS DE REPORTES PERIÓDICOS =======
+export type ReportPeriod = 'daily' | 'weekly' | 'monthly';
+
+export interface PeriodSalesReportRequest {
+  period: ReportPeriod;
+  reference_date: string; // Formato: YYYY-MM-DD
+  top_limit?: number; // Default: 10
+}
+
+export interface TopProductInReport {
+  presentation_id: UUID;
+  product_name: string;
+  presentation_name: string;
+  quantity_sold: number;
+  total_revenue: number;
+}
+
+export interface TopCustomerInReport {
+  customer_id: UUID;
+  customer_name: string;
+  customer_document?: string;
+  total_purchases: number;
+  total_spent: number;
+}
+
+export interface PeriodSalesReportResponse {
+  period: ReportPeriod;
+  start_date: Timestamp;
+  end_date: Timestamp;
+  // Campos planos (no anidados en metrics)
+  total_sales: number;
+  total_revenue: number;
+  estimated_profit: number;
+  profit_margin: number; // Porcentaje
+  average_sale_value: number;
+  total_items_sold: number;
+  top_products: TopProductInReport[];
+  top_customers: TopCustomerInReport[];
+}
+
 // ======= TIPOS DE ESTADO DE LA APLICACIÓN =======
 export interface AppState {
   auth: AuthState;
@@ -275,6 +359,7 @@ export interface SalesState {
   reports: {
     bestSelling: ProductSalesStats[];
     dailySummary: DailySalesSummary[];
+    periodReport: PeriodSalesReportResponse | null;
   };
   loading: boolean;
 }
@@ -436,6 +521,48 @@ export interface ProductCreateResponse {
 }
 
 /**
+ * Interface para actualizar un producto existente
+ * Todos los campos son opcionales - solo se actualizan los campos proporcionados
+ */
+export interface ProductUpdate {
+  name?: string;
+  description?: string;
+  brand?: string | null;
+  base_unit?: string;
+  category_id?: UUID | null;
+  image_url?: string | null;
+}
+
+/**
+ * Interface para actualizar una presentación existente
+ * Todos los campos son opcionales - solo se actualizan los campos proporcionados
+ */
+export interface ProductPresentationUpdate {
+  presentation_name?: string;
+  quantity?: number;
+  unit?: string;
+  price?: number;
+  sku?: string | null;
+  active?: boolean;
+}
+
+/**
+ * Interface para la respuesta al actualizar producto
+ */
+export interface ProductUpdateResponse {
+  message: string;
+  product: Product;
+}
+
+/**
+ * Interface para la respuesta al crear/actualizar presentación
+ */
+export interface PresentationResponse {
+  message: string;
+  presentation: ProductPresentation;
+}
+
+/**
  * Interface para errores de validación
  */
 export interface ValidationError {
@@ -477,6 +604,17 @@ export interface Supplier {
  */
 export interface SupplierCreate {
   name: string;
+  address?: string | null;
+  phone_number?: string | null;
+  email?: string | null;
+  contact_person?: string | null;
+}
+
+/**
+ * Interface para actualizar un proveedor
+ */
+export interface SupplierUpdate {
+  name?: string;
   address?: string | null;
   phone_number?: string | null;
   email?: string | null;

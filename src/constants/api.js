@@ -12,29 +12,29 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh'
   },
   
-  // Product endpoints
+  // Product endpoints (trailing slash para colecciones)
   PRODUCTS: {
-    BASE: '/products',
+    BASE: '/products/',
     BY_ID: (id) => `/products/${id}`,
-    CREATE: '/products',
+    CREATE: '/products/',
     UPDATE: (id) => `/products/${id}`,
     DELETE: (id) => `/products/${id}`
   },
   
-  // Category endpoints
+  // Category endpoints (trailing slash para colecciones)
   CATEGORIES: {
-    BASE: '/categories',
+    BASE: '/categories/',
     BY_ID: (id) => `/categories/${id}`,
-    CREATE: '/categories',
+    CREATE: '/categories/',
     UPDATE: (id) => `/categories/${id}`,
     DELETE: (id) => `/categories/${id}`
   },
 
-  // Person endpoints
+  // Person endpoints (trailing slash para colecciones)
   PERSONS: {
-    BASE: '/persons',
+    BASE: '/persons/',
     BY_ID: (id) => `/persons/${id}`,
-    CREATE: '/persons',
+    CREATE: '/persons/',
     UPDATE: (id) => `/persons/${id}`,
     DELETE: (id) => `/persons/${id}`,
     SEARCH: '/persons/search'

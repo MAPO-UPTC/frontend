@@ -10,6 +10,8 @@ import {
   SalesReportFilter,
   BestSellingProductsReport,
   DailySalesSummary,
+  PeriodSalesReportRequest,
+  PeriodSalesReportResponse,
   UUID,
   Timestamp,
   APIError,
@@ -22,7 +24,13 @@ import {
   BulkStockItem,
   ProductCreate,
   ProductCreateResponse,
+  ProductUpdate,
+  ProductUpdateResponse,
+  ProductPresentationCreate,
+  ProductPresentationUpdate,
+  PresentationResponse,
   SupplierCreate,
+  SupplierUpdate,
   InventoryLot,
   InventoryLotCreate,
   InventoryLotDetail,
@@ -30,7 +38,11 @@ import {
   InventoryLotDetailWithProduct,
   InventoryLotDetailsResponse,
   InventoryStockInfo,
-  InventoryStockReport
+  InventoryStockReport,
+  UserWithRoles,
+  UsersListResponse,
+  RoleName,
+  RoleManagementResponse
 } from '../types';
 
 // Configuración inteligente de URL base para el cliente TypeScript
@@ -40,8 +52,9 @@ const getApiBaseUrl = (): string => {
     return process.env.REACT_APP_API_BASE_URL || 'https://142.93.187.32.nip.io';
   }
   
-  // En producción (Netlify): usar proxy relativo con prefijo /api/
-  return process.env.REACT_APP_API_BASE_URL || '/api';
+  // En producción (Netlify): SIEMPRE usar proxy relativo /api/
+  // Ignoramos REACT_APP_API_BASE_URL en producción
+  return '/api';
 };
 
 export class MAPOAPIClient {
@@ -146,12 +159,14 @@ export class MAPOAPIClient {
     return this.request<Product[]>(`/categories/${categoryId}/products`);
   }
 
-  async getAllProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products/');
+  async getAllProducts(page: number = 1, pageSize: number = 20): Promise<Product[] | { products: Product[], pagination: any }> {
+    const params = `?page=${page}&page_size=${pageSize}`;
+    return this.request<Product[] | { products: Product[], pagination: any }>(`/products/${params}`);
   }
 
-  async getProductById(productId: UUID): Promise<Product> {
-    return this.request<Product>(`/products/${productId}`);
+  async getProductById(productId: UUID, includeInactive: boolean = false): Promise<Product> {
+    const params = includeInactive ? '?include_inactive=true' : '';
+    return this.request<Product>(`/products/${productId}${params}`);
   }
 
   /**
@@ -164,6 +179,56 @@ export class MAPOAPIClient {
       method: 'POST',
       body: JSON.stringify(productData),
     });
+  }
+
+  /**
+   * Actualizar un producto existente
+   * @param productId - UUID del producto a actualizar
+   * @param productData - Datos parciales a actualizar
+   * @returns Respuesta del servidor con el producto actualizado
+   */
+  async updateProduct(productId: UUID, productData: ProductUpdate): Promise<ProductUpdateResponse> {
+    return this.request<ProductUpdateResponse>(`/products/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify(productData),
+    });
+  }
+
+  /**
+   * Agregar una nueva presentación a un producto existente
+   * @param productId - UUID del producto
+   * @param presentationData - Datos de la nueva presentación
+   * @returns Respuesta del servidor con la presentación creada
+   */
+  async createPresentation(
+    productId: UUID, 
+    presentationData: ProductPresentationCreate
+  ): Promise<PresentationResponse> {
+    return this.request<PresentationResponse>(`/products/${productId}/presentations`, {
+      method: 'POST',
+      body: JSON.stringify(presentationData),
+    });
+  }
+
+  /**
+   * Actualizar una presentación existente
+   * @param productId - UUID del producto
+   * @param presentationId - UUID de la presentación
+   * @param presentationData - Datos parciales a actualizar
+   * @returns Respuesta del servidor con la presentación actualizada
+   */
+  async updatePresentation(
+    productId: UUID,
+    presentationId: UUID,
+    presentationData: ProductPresentationUpdate
+  ): Promise<PresentationResponse> {
+    return this.request<PresentationResponse>(
+      `/products/${productId}/presentations/${presentationId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(presentationData),
+      }
+    );
   }
 
   async getPresentationById(presentationId: UUID): Promise<any> {
@@ -278,6 +343,18 @@ export class MAPOAPIClient {
 
   async getDailySummary(date: Timestamp): Promise<DailySalesSummary> {
     return this.request<DailySalesSummary>(`/sales/reports/daily/${date}`);
+  }
+
+  /**
+   * Obtener reporte de ventas por periodo (diario, semanal, mensual)
+   * @param request - Parámetros del reporte
+   * @returns Reporte completo con métricas y tops
+   */
+  async getPeriodSalesReport(request: import('../types').PeriodSalesReportRequest): Promise<import('../types').PeriodSalesReportResponse> {
+    return this.request<import('../types').PeriodSalesReportResponse>('/reports/sales', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
   }
 
   async getSalesReportByDateRange(startDate: string, endDate: string): Promise<any> {
@@ -415,24 +492,40 @@ export class MAPOAPIClient {
 
   /**
    * Gestión de Proveedores (Suppliers)
+   * Requiere: ADMIN o SUPERADMIN para crear/actualizar/eliminar
    */
   
+  // Listar proveedores
+  async getSuppliers(): Promise<Supplier[]> {
+    return this.request<Supplier[]>('/suppliers/');
+  }
+
+  // Obtener proveedor por ID
+  async getSupplierById(supplierId: UUID): Promise<Supplier> {
+    return this.request<Supplier>(`/suppliers/${supplierId}`);
+  }
+
   // Crear proveedor
   async createSupplier(supplierData: SupplierCreate): Promise<Supplier> {
-    return this.request<Supplier>('/inventory/suppliers/', {
+    return this.request<Supplier>('/suppliers/', {
       method: 'POST',
       body: JSON.stringify(supplierData),
     });
   }
 
-  // Listar proveedores
-  async getSuppliers(skip: number = 0, limit: number = 100): Promise<Supplier[]> {
-    return this.request<Supplier[]>(`/inventory/suppliers/?skip=${skip}&limit=${limit}`);
+  // Actualizar proveedor
+  async updateSupplier(supplierId: UUID, data: SupplierUpdate): Promise<Supplier> {
+    return this.request<Supplier>(`/suppliers/${supplierId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
-  // Obtener proveedor por ID
-  async getSupplierById(supplierId: UUID): Promise<Supplier> {
-    return this.request<Supplier>(`/inventory/suppliers/${supplierId}`);
+  // Eliminar proveedor
+  async deleteSupplier(supplierId: UUID): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/suppliers/${supplierId}`, {
+      method: 'DELETE',
+    });
   }
 
   /**
@@ -515,6 +608,66 @@ export class MAPOAPIClient {
     } catch (error) {
       return { status: 'error', message: 'Failed to connect to server' };
     }
+  }
+
+  // ======= ROLE MANAGEMENT ENDPOINTS =======
+  /**
+   * Obtener todos los usuarios registrados en el sistema
+   * Requiere: Rol SUPERADMIN
+   */
+  async getAllUsers(): Promise<UsersListResponse> {
+    return this.request<UsersListResponse>('/role-management/users');
+  }
+
+  /**
+   * Asignar un rol a un usuario
+   * Requiere: Rol SUPERADMIN
+   */
+  async assignRoleToUser(
+    userId: UUID,
+    role: import('../types').RoleName
+  ): Promise<import('../types').RoleManagementResponse> {
+    return this.request<import('../types').RoleManagementResponse>(
+      `/role-management/users/${userId}/roles`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, role }),
+      }
+    );
+  }
+
+  /**
+   * Actualizar todos los roles de un usuario (reemplaza roles existentes)
+   * Requiere: Rol SUPERADMIN
+   */
+  async updateUserRoles(
+    userId: UUID,
+    roles: import('../types').RoleName[]
+  ): Promise<import('../types').RoleManagementResponse> {
+    return this.request<import('../types').RoleManagementResponse>(
+      `/role-management/users/${userId}/roles`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(roles),
+      }
+    );
+  }
+
+  /**
+   * Remover un rol de un usuario
+   * Requiere: Rol SUPERADMIN
+   */
+  async removeRoleFromUser(
+    userId: UUID,
+    role: import('../types').RoleName
+  ): Promise<import('../types').RoleManagementResponse> {
+    return this.request<import('../types').RoleManagementResponse>(
+      '/role-management/remove-role',
+      {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, role }),
+      }
+    );
   }
 }
 

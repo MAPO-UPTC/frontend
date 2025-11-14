@@ -69,9 +69,13 @@ export const useProductFilters = (products = []) => {
     
     const filtered = products.filter(product => {
       const matchesSearch = product.name?.toLowerCase().includes(filters.search.toLowerCase());
-      const matchesCategory = !filters.category || product.category === filters.category;
-      const matchesPrice = !filters.priceRange || checkPriceRange(product.price, filters.priceRange);
-      
+      // Filtrar por category_id (ID, no nombre)
+      const matchesCategory = !filters.category || product.category_id === filters.category;
+      // Filtrar por precio de la primera presentación
+      const price = Array.isArray(product.presentations) && product.presentations.length > 0
+        ? product.presentations[0].price
+        : 0;
+      const matchesPrice = !filters.priceRange || checkPriceRange(price, filters.priceRange);
       return matchesSearch && matchesCategory && matchesPrice;
     });
     

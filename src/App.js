@@ -2,10 +2,12 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { useAuth, AuthProvider } from "./context/AuthContext";
 import { Navigation } from "./components/Navigation/Navigation";
+import { NotificationToast } from "./components/UI";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Entity, Action } from "./constants";
 
 // Pages
 import Login from "./pages/login/Login";
-import Dashboard from "./pages/dashboard/Dashboard";
 import Signup from "./pages/signup/Signup";
 import Products from "./pages/products/Products";
 import CreateProduct from "./pages/createProduct/CreateProduct";
@@ -15,6 +17,9 @@ import { SalesHistory } from "./pages/SalesHistory/SalesHistory";
 import SaleDetails from "./pages/SaleDetails/SaleDetails";
 import { Inventory } from "./pages/Inventory/Inventory";
 import { Reports } from "./pages/Reports/Reports";
+import { UserManagementPage } from "./pages/UserManagementPage/UserManagementPage";
+import SuppliersPage from "./pages/Suppliers";
+import { Returns } from "./pages/Returns";
 
 import { useRef, useEffect } from "react";
 import "./App.css";
@@ -27,12 +32,24 @@ const PrivateRoute = ({ children }) => {
 
 const MainLayout = ({ children }) => {
   const { user } = useAuth();
+  const location = useLocation();
   console.log("MainLayout - usuario:", user);
   
+  // Páginas públicas que no requieren navegación
+  const publicPages = ['/login', '/signup', '/products'];
+  const isPublicPage = publicPages.includes(location.pathname);
+  
+  // Si no hay usuario y es una página pública, mostrar sin layout
+  if (!user && isPublicPage) {
+    return children;
+  }
+  
+  // Si no hay usuario y NO es una página pública, no mostrar nada (redirigirá)
   if (!user) {
     return children;
   }
 
+  // Usuario autenticado: mostrar con navegación
   return (
     <div className="app-layout">
       <Navigation />
@@ -53,24 +70,18 @@ function AnimatedRoutes() {
         <CSSTransition key={location.pathname} classNames="fade" timeout={400} nodeRef={nodeRef}>
           <div ref={nodeRef}>
             <Routes location={location}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/products" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               
-              {/* Protected Routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
+              {/* Protected Routes with Permission Checks */}
               <Route
                 path="/sales"
                 element={
                   <PrivateRoute>
-                    <SalesPage />
+                    <ProtectedRoute entity={Entity.SALES} action={Action.CREATE}>
+                      <SalesPage />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -78,7 +89,9 @@ function AnimatedRoutes() {
                 path="/sales/history"
                 element={
                   <PrivateRoute>
-                    <SalesHistory />
+                    <ProtectedRoute entity={Entity.SALES} action={Action.READ}>
+                      <SalesHistory />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -86,7 +99,9 @@ function AnimatedRoutes() {
                 path="/sales/:id/details"
                 element={
                   <PrivateRoute>
-                    <SaleDetails />
+                    <ProtectedRoute entity={Entity.SALES} action={Action.READ}>
+                      <SaleDetails />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -94,7 +109,9 @@ function AnimatedRoutes() {
                 path="/inventory"
                 element={
                   <PrivateRoute>
-                    <Inventory />
+                    <ProtectedRoute entity={Entity.INVENTORY} action={Action.READ}>
+                      <Inventory />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -102,23 +119,23 @@ function AnimatedRoutes() {
                 path="/reports"
                 element={
                   <PrivateRoute>
-                    <Reports />
+                    <ProtectedRoute entity={Entity.REPORTS} action={Action.READ}>
+                      <Reports />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
               <Route
                 path="/products"
-                element={
-                  <PrivateRoute>
-                    <Products />
-                  </PrivateRoute>
-                }
+                element={<Products />}
               />
               <Route
                 path="/create-product"
                 element={
                   <PrivateRoute>
-                    <CreateProduct />
+                    <ProtectedRoute entity={Entity.PRODUCTS} action={Action.CREATE}>
+                      <CreateProduct />
+                    </ProtectedRoute>
                   </PrivateRoute>
                 }
               />
@@ -130,9 +147,40 @@ function AnimatedRoutes() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/users"
+                element={
+                  <PrivateRoute>
+                    <ProtectedRoute entity={Entity.USERS} action={Action.UPDATE}>
+                      <UserManagementPage />
+                    </ProtectedRoute>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/suppliers"
+                element={
+                  <PrivateRoute>
+                    <ProtectedRoute entity={Entity.SUPPLIERS} action={Action.READ}>
+                      <SuppliersPage />
+                    </ProtectedRoute>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/returns"
+                element={
+                  <PrivateRoute>
+                    <ProtectedRoute entity={Entity.RETURNS} action={Action.READ}>
+                      <Returns />
+                    </ProtectedRoute>
+                  </PrivateRoute>
+                }
+              />
               
               {/* Legacy routes for compatibility */}
-              <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/home" element={<Navigate to="/products" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/products" replace />} />
             </Routes>
           </div>
         </CSSTransition>
@@ -150,6 +198,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <NotificationToast />
         <AnimatedRoutes />
       </BrowserRouter>
     </AuthProvider>

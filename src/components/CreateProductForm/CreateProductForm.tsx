@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './CreateProductForm.css';
 import { useCreateProduct } from '../../hooks/useCreateProduct';
-import { ProductCreate, ProductPresentationCreate, MeasurementUnit, UnitLabels } from '../../types';
+import { useCategories } from '../../hooks/useCategories';
+import { ProductCreate, ProductPresentationCreate, MeasurementUnit, UnitLabels, Category } from '../../types';
 
 interface CreateProductFormProps {
   onSuccess?: () => void;
@@ -33,8 +34,14 @@ const CreateProductForm: React.FC<CreateProductFormProps> = ({ onSuccess, onCanc
   // Success alert state
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
-  // Use the hook
+  // Use the hooks
   const { createNewProduct, loading, error, validationErrors, clearErrors } = useCreateProduct();
+  const { categories, loading: loadingCategories } = useCategories() as { 
+    categories: Category[], 
+    loading: boolean,
+    error: string | null,
+    actions: any
+  };
 
   // Handler for adding a presentation to the list
   const handleAddPresentation = () => {
@@ -239,15 +246,24 @@ const CreateProductForm: React.FC<CreateProductFormProps> = ({ onSuccess, onCanc
           </div>
 
           <div className="form-group">
-            <label htmlFor="categoryId">ID de Categoría</label>
-            <input
-              type="text"
+            <label htmlFor="categoryId">
+              Categoría <span className="required">*</span>
+            </label>
+            <select
               id="categoryId"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              placeholder="UUID de la categoría (opcional)"
-              disabled={loading}
-            />
+              disabled={loading || loadingCategories}
+              required
+            >
+              <option value="">Selecciona una categoría</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {loadingCategories && <small className="text-muted">Cargando categorías...</small>}
           </div>
         </div>
 

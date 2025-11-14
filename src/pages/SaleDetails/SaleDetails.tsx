@@ -2,15 +2,39 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SaleDetailFullResponse } from '../../types';
 import { MAPOAPIClient } from '../../api/client';
+import axios from '../../api/axios';
 import './SaleDetails.css';
 
 const apiClient = new MAPOAPIClient();
+
+interface ReturnData {
+  id: string;
+  return_code: string;
+  sale_id: string;
+  customer_id: string;
+  reason: string;
+  notes?: string;
+  status: string;
+  created_at: string;
+  processed_at?: string;
+  items: {
+    id: string;
+    sale_detail_id: string;
+    product_name?: string;
+    presentation_name?: string;
+    quantity_returned: number;
+    condition: string;
+    refund_amount?: number;
+  }[];
+}
 
 const SaleDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [saleDetails, setSaleDetails] = useState<SaleDetailFullResponse | null>(null);
+  const [returns, setReturns] = useState<ReturnData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingReturns, setLoadingReturns] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,6 +60,28 @@ const SaleDetails: React.FC = () => {
 
     fetchSaleDetails();
   }, [id]);
+
+  useEffect(() => {
+    const fetchReturns = async () => {
+      if (!id) return;
+
+      try {
+        setLoadingReturns(true);
+        const response = await axios.get(`/returns/sale/${id}`);
+        setReturns(response.data || []);
+      } catch (err) {
+        console.error('Error al cargar devoluciones:', err);
+        // No mostramos error, simplemente no hay devoluciones
+        setReturns([]);
+      } finally {
+        setLoadingReturns(false);
+      }
+    };
+
+    if (saleDetails) {
+      fetchReturns();
+    }
+  }, [id, saleDetails]);
 
   const handlePrint = () => {
     window.print();
@@ -247,6 +293,127 @@ const SaleDetails: React.FC = () => {
             </table>
           </div>
         </section>
+
+        {/* Sección de devoluciones */}
+        {(loadingReturns || returns.length > 0) && (
+          <section className="info-section returns-section">
+            <h2>↩️ Devoluciones de esta Venta</h2>
+            {loadingReturns ? (
+              <div className="loading-returns">
+                <div className="spinner"></div>
+                <p>Cargando devoluciones...</p>
+              </div>
+            ) : returns.length === 0 ? (
+              <div className="no-returns">
+                <p>No hay devoluciones registradas para esta venta.</p>
+              </div>
+            ) : (
+              <div className="returns-list">
+                {returns.map((returnItem) => {
+                  const totalRefund = returnItem.items.reduce(
+                    (sum, item) => sum + (item.refund_amount || 0), 
+                    0
+                  );
+                  
+                  const getStatusClass = (status: string) => {
+                    switch (status.toLowerCase()) {
+                      case 'approved':
+                      case 'processed':
+                        return 'status-approved';
+                      case 'pending':
+                        return 'status-pending';
+                      case 'rejected':
+                        return 'status-rejected';
+                      default:
+                        return '';
+                    }
+                  };
+
+                  const getStatusText = (status: string) => {
+                    switch (status.toLowerCase()) {
+                      case 'approved':
+                        return 'Aprobada';
+                      case 'processed':
+                        return 'Procesada';
+                      case 'pending':
+                        return 'Pendiente';
+                      case 'rejected':
+                        return 'Rechazada';
+                      default:
+                        return status;
+                    }
+                  };
+
+                  const getConditionText = (condition: string) => {
+                    switch (condition.toLowerCase()) {
+                      case 'good':
+                        return 'Bueno';
+                      case 'damaged':
+                        return 'Dañado';
+                      case 'expired':
+                        return 'Vencido';
+                      default:
+                        return condition;
+                    }
+                  };
+
+                  return (
+                    <div key={returnItem.id} className="return-card">
+                      <div className="return-header">
+                        <div className="return-info">
+                          <span className="return-code">{returnItem.return_code}</span>
+                          <span className={`badge ${getStatusClass(returnItem.status)}`}>
+                            {getStatusText(returnItem.status)}
+                          </span>
+                        </div>
+                        <div className="return-date">
+                          {new Date(returnItem.created_at).toLocaleString('es-CO', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="return-reason">
+                        <strong>Motivo:</strong> {returnItem.reason}
+                      </div>
+                      {returnItem.notes && (
+                        <div className="return-notes">
+                          <strong>Notas:</strong> {returnItem.notes}
+                        </div>
+                      )}
+
+                      <div className="return-items">
+                        <strong>Productos devueltos:</strong>
+                        <ul>
+                          {returnItem.items.map((item) => (
+                            <li key={item.id}>
+                              {item.product_name || 'Producto'} - {item.presentation_name || 'Presentación'} 
+                              <span className="item-quantity"> x{item.quantity_returned}</span>
+                              <span className="item-condition"> ({getConditionText(item.condition)})</span>
+                              {item.refund_amount && (
+                                <span className="item-refund"> - Reembolso: ${item.refund_amount.toFixed(2)}</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {totalRefund > 0 && (
+                        <div className="return-total">
+                          <strong>Total Reembolsado:</strong> ${totalRefund.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Resumen financiero */}
         <section className="info-section financial-summary">

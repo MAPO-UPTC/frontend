@@ -16,6 +16,18 @@ class PersonService {
       
       const response = await api.get(API_ENDPOINTS.PERSONS.BASE);
       
+      // ✅ Validar que response.data sea un array (fix para error .map is not a function)
+      if (!Array.isArray(response.data)) {
+        console.error('❌ PersonService - Response no es un array:', response.data);
+        
+        // Si el backend devuelve un objeto de error
+        if (response.data?.detail) {
+          throw new Error(response.data.detail);
+        }
+        
+        throw new Error('Formato de respuesta inválido del servidor');
+      }
+      
       console.log('✅ PersonService - Personas obtenidas desde API:', {
         total: response.data.length,
         personas: response.data.map(p => ({
@@ -28,6 +40,19 @@ class PersonService {
       return response.data;
     } catch (error) {
       console.error('❌ PersonService - Error al obtener personas:', error);
+      
+      // Extraer mensaje de error específico del backend
+      if (error.response?.data?.detail) {
+        const errorMessage = error.response.data.detail;
+        console.error('❌ Error del backend:', errorMessage);
+        
+        // Si es error de autenticación, lanzar error específico
+        if (errorMessage.includes('token') || error.response?.status === 401) {
+          throw new Error('No autorizado - Token inválido o expirado');
+        }
+        
+        throw new Error(errorMessage);
+      }
       
       // Si el endpoint no existe (404) o hay error de red, usar datos mock
       if (error.response?.status === 404 || error.code === 'NETWORK_ERROR' || error.response?.status >= 500) {

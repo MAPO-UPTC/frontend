@@ -167,6 +167,39 @@ export const getUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
+// Solicitar código de reseteo de contraseña
+export const requestPasswordReset = async (email) => {
+  console.log("🔑 requestPasswordReset: Solicitando código para:", email);
+  try {
+    const { data } = await api.post("/users/request-password-reset", { email });
+    console.log("✅ requestPasswordReset: Código enviado:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ requestPasswordReset: Error:", error);
+    throw error;
+  }
+};
+
+// Resetear contraseña con código
+export const resetPassword = async (email, reset_code, new_password) => {
+  const payload = {
+    email,
+    reset_code,
+    new_password
+  };
+  console.log("🔑 resetPassword: Payload enviado:", payload);
+  try {
+    const { data } = await api.post("/users/reset-password", payload);
+    console.log("✅ resetPassword: Contraseña actualizada:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ resetPassword: Error completo:", error);
+    console.error("❌ resetPassword: Response:", error.response?.data);
+    console.error("❌ resetPassword: Status:", error.response?.status);
+    throw error;
+  }
+};
+
 // Export default con todas las funciones
 const authService = {
   login,
@@ -181,7 +214,9 @@ const authService = {
   logout,
   isAuthenticated,
   getToken,
-  getUser
+  getUser,
+  requestPasswordReset,
+  resetPassword
 };
 
 export default authService;
